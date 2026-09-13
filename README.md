@@ -1,0 +1,121 @@
+# Fin-Set 핀셋
+
+웹 **1280 × 800**, 앱 **412 × 917**에 대응하는 반응형 인터랙티브 목업입니다. 360px 화면도 지원합니다.
+
+[공개 목업](https://id187.github.io/finset/) · [웹/앱 크기별 미리보기](https://id187.github.io/finset/preview.html) · [배포 상태](https://github.com/id187/finset/actions/workflows/pages.yml)
+
+시작하기 → 목표·여력 질문 → 실제 상품 비교 → 계획/초안 저장 → 저장한 계획 → 납입 기록 → 원금 회복 비교 → 변경 이력까지 연결했습니다. 우대조건을 개별 질문으로 확인하는 화면도 포함합니다. 화면을 고르는 메뉴와 웹·앱 크기 전환은 `/preview.html`에서 제공합니다.
+
+## 데이터와 구현 범위
+
+- 로컬 모드는 실제 수집 상품 DB와 기존 Python 추천·회복 엔진을 읽기 전용으로 호출합니다. 원본 SHA256 검증을 유지하고 원본 DB·rules.json·liquid_rules.json을 수정하지 않습니다.
+- 사용자·목표·납입은 **가상 시연**입니다. 기본 추천 입력은 제공된 recommendation_base.json이며, 대량 0/false 응답은 해당 가상 인물의 가정입니다. 실제 사용자의 기본 응답으로 사용하면 안 됩니다.
+- 시연 시작일은 2026-09-11, 대시보드 기준일은 2027-01-11입니다. 실제 상품 금리는 **2026년 8월 수집 스냅샷**으로 최신 금리를 뜻하지 않습니다.
+- 가상 계획과 납입 기록은 이 브라우저의 localStorage에만 저장합니다. 실제 계좌 연결·가입·이체·로그인·다중 사용자 서버 저장은 구현 범위에 포함하지 않습니다.
+- 공개 GitHub Pages는 정적 시연 모드입니다. 추천은 원본 엔진으로 사전 계산한 결과를 표시하고, 우대 질문·원금 회복·가상 기록은 브라우저에서 처리합니다. 로컬 API는 로컬 주소에만 바인딩합니다.
+
+## GitHub Pages
+
+`main`에 push하면 `.github/workflows/pages.yml`이 테스트와 빌드 후 GitHub Pages에 배포합니다. 저장소 Pages 설정은 **GitHub Actions**를 사용합니다. 사이트 경로는 `/finset/`입니다.
+
+공개 시연은 월 5·10·20·30·50만원, 목표 100·300·360·500·1,000만원, 기간 6·12·24·36·60개월을 조합할 수 있습니다. 은행/저축은행 포함, 조건 확인/미확인, 기존/새 계획 시작일까지 **1,000가지 조합**을 기존 엔진으로 계산했습니다. 공개 화면은 선택형 금액을 사용하며, 임의 금액 입력은 로컬 API 모드에서 제공합니다. 입력과 정확히 일치하는 결과만 표시하고 수치나 순위를 보간하지 않습니다.
+
+`public/demo/`에는 약 4.9MB의 공개 상품 시연 결과와 9개 질문 규칙만 포함합니다. 원본·파생 SQLite DB, 전체 규칙, 사용자 기록, 인증 정보는 Git과 배포 산출물에서 제외합니다. 가상 계획은 기기·브라우저마다 따로 저장되며 다른 기기와 동기화하지 않습니다.
+
+```powershell
+npm ci
+npm run test:pages
+npm run build:pages
+npm run preview:pages
+```
+
+배포 모드 로컬 주소: `http://127.0.0.1:4173/finset/preview.html`. 원본 데이터가 없어도 위 명령으로 실행할 수 있습니다.
+
+원본 패키지가 있는 환경에서 스냅샷을 다시 만들 때만 다음을 실행합니다. 생성 중에도 원본 DB는 읽기 전용으로 유지하며 전후 해시를 확인합니다.
+
+```powershell
+python -X utf8 scripts/export-pages.py
+python -X utf8 scripts/export-pages-parity.py
+npm run test:pages
+```
+
+브라우저 계산은 원본 Python이 생성한 우대 응답 225개·회복 사례 37개와 비교합니다. `node scripts/audit-pages.cjs`는 Pages 모드의 화면·기록·회복·질문·초안·정확한 미리보기 크기를 검수하며, `FINSET_URL`에 공개 사이트 URL을 지정해 같은 검수를 수행할 수 있습니다. 실제 추천을 실행하는 로컬 모드는 아래와 같습니다.
+
+## 실행
+
+Node.js 22 및 Python 3.11 이상을 사용합니다. React + TypeScript + Vite, Python 표준 라이브러리 HTTP 어댑터로 구성됩니다. 운영 MVP 단계에서 명세서의 FastAPI·세션별 SQLite 저장을 추가할 수 있습니다.
+
+```powershell
+npm install
+./start.ps1
+```
+
+크기별 미리보기: http://127.0.0.1:5173/preview.html
+
+전체 화면: http://127.0.0.1:5173/
+
+Python 경로를 지정해야 하는 환경:
+
+```powershell
+./start.ps1 -PythonPath 'C:\path\to\python.exe'
+```
+
+수동 실행은 터미널 두 개를 사용합니다.
+
+```powershell
+python -X utf8 server.py
+npm run dev
+```
+
+기존 데이터 패키지 기본 위치는 `../mvp/핀셋_MVP_팀원전달`입니다. 다른 컴퓨터에서는 해당 전달 패키지를 별도로 준비하고 실행 전 `FINSET_DATA_DIR` 환경변수에 지정하세요. 그 안의 `finset_recommendation`, `fixtures`, `service_data_collection` 상대 위치를 유지합니다. 원본 데이터 패키지는 Git에 중복 업로드하지 않습니다.
+
+```powershell
+$env:FINSET_DATA_DIR = 'C:\data\핀셋_MVP_팀원전달'
+python -X utf8 server.py
+```
+
+## 별도 우대조건 DB
+
+`condition_db.py`가 `app_data/bonus_conditions_v1.sqlite3`를 생성합니다. 기존 결과가 동일한 버전이면 재사용하고, 다른 버전이면 덮어쓰지 않습니다. 원문과 규칙을 보존하며 별도 작업 DB에 복사·분해합니다.
+
+| 테이블 | 용도 |
+|---|---|
+| source_products | 상품 원문, 원문 해시, 출처, 수집 시점 |
+| text_fragments | 원문에서 추출한 문장 조각과 문자 위치; 검수 대상 |
+| rule_options | 기간별 기존 규칙 원형, 별도 파싱 규칙, 질문 스키마, 검수 상태 |
+| bonus_components | 우대 %p, AND/OR 식, 중복 제외 그룹, 규칙 출처 |
+| atomic_conditions | 질문 키, 비교 연산자, 기준값, 논리 트리 위치 |
+| review_events | 향후 검수 승인 이력을 남기기 위한 테이블 |
+| metadata | 입력 파일 해시, 파서 버전, 변환 결과 |
+
+현재 결과는 `conditions-report.json`에서 확인할 수 있습니다.
+
+- 상품 원문 **12,542개**, 기존 기간별 규칙 **25,560개** 보존.
+- 원문 조각 **17,578개**를 검수 대상으로 추출. 문장 분리가 의미 해석 완료를 뜻하지 않습니다.
+- **카카오뱅크 자유적금 / 토스뱅크 자유 적금, 9개 기간 옵션**만 제한된 원문 전체 일치 파서로 질문 판정까지 연결.
+- 그 외 우대가 있는 기존 규칙 **35개 옵션**은 원문 추가 검수 상태. 자동 금리 적용 API에서 차단합니다.
+- 카카오뱅크: 자동이체 개월 수 ≥ 계약의 절반, 자동연장 원리금 제외, 만기 해지 계획을 각각 질문. 기존 규칙에 빠진 만기 해지 질문은 **새 파생 DB에만** 추가했습니다.
+- 토스뱅크: 가입 시 설정한 월 자동이체 사용과 모든 자동이체 성공을 각각 질문.
+- `unknown`은 금리에 반영하지 않습니다. 기본금리 + 확인된 우대 %p를 계산하며 기존 평가기의 우대 상한·배타 그룹 처리를 재사용합니다.
+- `question_ready`는 수집된 우대 원문을 질문으로 평가할 수 있다는 뜻입니다. 전체 약관·가입 자격·현재 금리·미래 실적의 은행 승인까지 검증했다는 뜻은 아닙니다. 이 질문 결과는 상품 추천 엔진을 수정하거나 순위에 자동 반영하지 않습니다.
+
+새 상품 확대 시 원문 전체와 예외·기간·금액·우대 상한·중복 불가·추가 비용을 검토하고, 명시적인 파싱 규칙·경계값 테스트를 추가한 다음 새 버전 DB를 생성합니다. 키워드 매칭만으로 미해석 조건을 자동 확정하지 않습니다.
+
+## 확인
+
+```powershell
+npm run build
+npm run test:model
+python -X utf8 -m unittest discover -s tests -v
+npm run test:ui
+```
+
+`scripts/audit-mockup.cjs`는 Playwright와 Edge를 이용해 실제 추천, 질문 입력, 계획/초안 저장, 납입 수정·취소, 회복·변경 이력, 오류·재시도를 확인합니다. `.qa/audit-results.json`과 `.qa/finset-walkthrough.webm`에 검증 결과와 동작 영상을 저장합니다. `scripts/verify-ui.cjs`는 동일 검증의 호환 진입점입니다.
+
+`scripts/check-final.cjs`는 7개 화면 × 3개 크기의 가로 넘침과 스크린샷, 대화상자 키보드 조작, 늦은 회복 응답 무시, 60개월 목표와 상품 만기의 분리를 확인합니다. `.qa/final-results.json` 및 `.qa/final-*.png`가 생성됩니다. 다른 환경에서는 `PLAYWRIGHT_MODULE`에 설치된 Playwright 모듈 경로를 지정하세요. 현재 목업 검수 범위는 `MOCKUP_ACCEPTANCE.md`에 정리했습니다.
+
+새 계획의 시연 시작일은 기준일인 2027-01-11이며 저장 직후 기록 원금은 0원입니다. 기본 대시보드 사례는 2026-09-11부터 4회 기록이 있는 별도 가상 사례입니다. 납입 날짜와 예정 회차를 별도로 지정할 수 있고, 수정·취소 시 이전 값은 정정 이력에 남습니다. 미확정 초안은 현재 저축 계획을 교체하지 않습니다.
+
+목표일이 상품 만기 이후라면 상품 만기 이후의 별도 저축 일정과 상품 계약 내 납입을 구분합니다. 회복은 계약 내 미납액에만 적용하며, 만기·이미 기록한 원금·만기 이후 별도 계획은 유지합니다. 과거 미납이 있으면 기록 확인을 요청합니다.
+
+Git 원격: `https://github.com/id187/finset.git`. 원본 DB와 별도 파생 DB, 가상 사용자 기록, node_modules는 Git에서 제외합니다.

@@ -1,0 +1,14 @@
+{
+  "parser_version": "conservative-parser-1.0",
+  "source_sha256": "15597888b0965ef565783957abea501d38130c0585ba3c86cd6355d86b954ef7",
+  "source_preserved": true,
+  "source_products": 12542,
+  "source_products_with_text": 12537,
+  "rule_options": 25560,
+  "question_ready_options": 9,
+  "question_ready_products": 2,
+  "legacy_bonus_options_for_review": 35,
+  "atomic_conditions": 174,
+  "text_fragments_for_review": 17578,
+  "notice": "question_ready는 수집된 우대 원문과 명시적 질문 규칙의 일치를 뜻합니다. 전체 약관·가입 자격·현재 금리·향후 실적 달성 검수 완료를 뜻하지 않습니다."
+}
