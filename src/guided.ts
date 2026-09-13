@@ -2,6 +2,7 @@ import { evaluate } from './offline.ts'
 import type { Expression } from './offline.ts'
 import { addMonths } from './model.ts'
 import type { Card, Product } from './model.ts'
+import { projectSaving } from './projection.ts'
 
 export type Choice = '' | 'yes' | 'no' | 'unknown'
 export type GuidedAnswers = {
@@ -23,7 +24,7 @@ export const yesNo = (value: Choice) => value === 'yes' ? true : value === 'no' 
 const won = (value: string) => /^\d+$/.test(value) && Number.isSafeInteger(Number(value)) && Number(value) <= 1000000000
 export function validateStep(a: GuidedAnswers, step: number): string {
   if (step === 0 && (!a.purpose || !won(a.goal) || Number(a.goal) <= 0 || !['6', '12', '24', '36', '60'].includes(a.months))) return '저축 목적, 1원 이상의 목표 금액과 기간을 모두 선택해 주세요.'
-  if (step === 1 && (!['50000', '100000', '200000', '300000', '500000'].includes(a.monthly) || !a.reserve || !a.debt || !a.hold)) return '매달 가능한 금액과 세 가지 상황에 답해 주세요. 모르면 모르겠어요를 선택할 수 있어요.'
+  if (step === 1 && (!won(a.monthly) || Number(a.monthly) <= 0 || !a.reserve || !a.debt || !a.hold)) return '매달 가능한 금액과 세 가지 상황에 답해 주세요. 모르면 모르겠어요를 선택할 수 있어요.'
   if (step === 2 && (!a.adult || !a.mobile)) return '가입 기준과 앱 이용 가능 여부에 답해 주세요.'
   if (step === 3) {
     if (!a.holdings || !a.tossAccount) return '기존 예·적금과 토스뱅크 입출금통장 보유 여부에 답해 주세요.'
@@ -90,7 +91,7 @@ export function recommendGuided(a: GuidedAnswers, catalog: GuidedCatalog): Guide
   if (a.holdings === 'unknown') return stopped('NEEDS_HOLDINGS', '기존 잔액과 보유 적금에 따라 가입 가능 여부가 달라져요. 케이뱅크·카카오뱅크·토스뱅크의 보유 현황을 먼저 확인해 주세요.')
   if (validateStep(a, 4)) return stopped('NEEDS_INPUT', validateStep(a, 4))
   const monthly = Number(a.monthly), months = Number(a.months), goal = Number(a.goal)
-  if (!catalog.monthly.includes(monthly) || !catalog.months.includes(months)) return stopped('NEEDS_INPUT', '시연에서 지원하는 금액과 기간을 선택해 주세요.')
+  if (!catalog.months.includes(months)) return stopped('NEEDS_INPUT', '시연에서 지원하는 기간을 선택해 주세요.')
   const facts = guidedFacts(a), known: { card: Card; upper: number; missing: string[]; id: number }[] = [], possible: { upper: number; missing: string[] }[] = []
   const excluded = new Map<string, { name: string; reason: string }>()
   const included = new Set<string>()
@@ -104,8 +105,8 @@ export function recommendGuided(a: GuidedAnswers, catalog: GuidedCatalog): Guide
     const components = rule.bonus.map(b => ({ ...b, ...evaluate(b.when, facts) }))
     const low = Math.min(rule.bonus_cap, components.filter(b => b.state === true).reduce((sum, b) => sum + b.rate, 0))
     const high = Math.min(rule.bonus_cap, components.filter(b => b.state !== false).reduce((sum, b) => sum + b.rate, 0))
-    const estimate = catalog.projections[`${rule.option_id}|${monthly}|${(rule.base_rate + low).toFixed(2)}`]
-    const ceiling = catalog.projections[`${rule.option_id}|${monthly}|${(rule.base_rate + high).toFixed(2)}`]
+    const estimate = projectSaving(monthly, rule.term, rule.base_rate + low, rule.model, catalog.start)
+    const ceiling = projectSaving(monthly, rule.term, rule.base_rate + high, rule.model, catalog.start)
     if (!estimate || !ceiling) return stopped('DATA_ERROR', '이 조건의 계산 근거를 찾지 못했어요. 다시 시작해 주세요.')
     const existing = a.holdings === 'no' ? 0 : Number(rule.institution.includes('케이') ? a.kbankBalance : rule.institution.includes('카카오') ? a.kakaoBalance : a.tossBalance)
     if (existing + ceiling.gross_balance_ceiling > catalog.protection_limit) { exclude('기존 잔액을 합치면 이번 시연의 은행별 비교 한도를 넘어요.'); continue }

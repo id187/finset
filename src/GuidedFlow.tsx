@@ -1,83 +1,75 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
-import { ArrowRight, Check, CheckCircle2, ChevronLeft, Info, ListChecks, Play, ShieldCheck, Sparkles, Target, X } from 'lucide-react'
-import catalog from '../public/demo/guided.json'
-import { answerSummary, blankAnswers, recommendGuided, validateStep } from './guided'
-import type { Choice, GuidedAnswers, GuidedCatalog } from './guided'
-import type { Card } from './model'
+import { ArrowRight, Check, ChevronLeft, Info, RefreshCw, ShieldCheck, Sparkles, Target } from 'lucide-react'
+import data from '../public/demo/guided.json'
+import { recommendGuided } from './guided'
+import type { GuidedAnswers, GuidedCatalog } from './guided'
+import { bumpAmount, demoProfile, quickAdjustments, quickAnswers, quickBlank, quickFromAnswers, quickValidate } from './quick'
+import type { QuickInputs } from './quick'
+import { projectSaving } from './projection'
 import { money } from './model'
 
-const steps = ['나의 목표', '저축 여력', '가입 기준', '기존 계좌', '우대조건', '답변 확인']
-function Field({ title, children, hint }: { title: string; children: ReactNode; hint?: string }) {
-  return <fieldset className="guided-field"><legend>{title}</legend>{hint && <p>{hint}</p>}{children}</fieldset>
-}
-function Answer({ title, value, set, hint, yes = '예', no = '아니요' }: { title: string; value: Choice; set: (value: Choice) => void; hint?: string; yes?: string; no?: string }) {
-  return <Field title={title} hint={hint}><div className="guided-answers">{[{ id: 'yes', label: yes }, { id: 'no', label: no }, { id: 'unknown', label: '모르겠어요' }].map(option => <button type="button" key={option.id} aria-pressed={value === option.id} className={value === option.id ? 'selected' : ''} onClick={() => set(option.id as Choice)}>{value === option.id && <Check size={15}/>} {option.label}</button>)}</div></Field>
+const catalog = data as GuidedCatalog
+const goals = [{ name: '일단 모으기', amount: '', hint: '목표는 천천히 정할게요' }, { name: '여행 자금', amount: '3000000', hint: '300만원' }, { name: '첫 목돈', amount: '5000000', hint: '500만원' }, { name: '주거 준비', amount: '10000000', hint: '1,000만원' }]
+const transfers = [{ id: 'yes', label: '가능해요', hint: '가입할 때 설정한 월 자동이체를 만기까지 빠짐없이' }, { id: 'no', label: '직접 넣을게요', hint: '자동이체 우대 없이 비교' }, { id: 'unknown', label: '아직 모르겠어요', hint: '기본금리로 먼저 추천받기' }] as const
+
+function AmountInput({ value, onChange, goal = false }: { value: string; onChange: (v: string) => void; goal?: boolean }) {
+  const id = goal ? 'quick-goal' : 'quick-monthly'
+  return <div className="quick-amount"><label htmlFor={id}>{goal ? '목표 금액' : '매달 얼마까지 저축할 수 있나요?'}</label><div className="money-input"><input id={id} type="number" inputMode="numeric" min="1" max="1000000000" step="1" placeholder={goal ? '목표 금액을 입력해 주세요' : '직접 입력해 주세요'} value={value} onChange={e => onChange(e.target.value)}/><span>원</span></div><div className="quick-increments">{(goal ? [100000, 500000, 1000000] : [10000, 30000, 50000]).map(n => <button type="button" key={n} onClick={() => onChange(bumpAmount(value, n))}>+{n / 10000}만</button>)}<button type="button" onClick={() => onChange(bumpAmount(value, goal ? -100000 : -10000))}>{goal ? '−10만' : '−1만'}</button><button type="button" onClick={() => onChange('')}>초기화</button></div><small>{value && Number(value) > 0 ? `${money(Number(value))}원${goal ? '' : ' / 월'}` : '버튼을 여러 번 눌러 더할 수도 있어요.'}</small></div>
 }
 
-export function GuidedFlow({ initialAnswers, showResults = false, onSave, onExit }: { initialAnswers?: GuidedAnswers; showResults?: boolean; onSave: (answers: GuidedAnswers, card: Card, status: string) => void; onExit: () => void }) {
-  const [answers, setAnswers] = useState<GuidedAnswers>(() => initialAnswers ? structuredClone(initialAnswers) : blankAnswers())
-  const [step, setStep] = useState(showResults ? 6 : 0)
+export function GuidedFlow({ initialAnswers, showResults = false, onExit }: { initialAnswers?: GuidedAnswers; showResults?: boolean; onExit: () => void }) {
+  const [input, setInput] = useState<QuickInputs>(() => initialAnswers ? quickFromAnswers(initialAnswers) : quickBlank())
+  const [step, setStep] = useState(showResults && initialAnswers ? 2 : 0)
   const [error, setError] = useState('')
-  const [chosen, setChosen] = useState<Card | null>(null)
-  const [confirmed, setConfirmed] = useState(false)
-  const dialog = useRef<HTMLDialogElement>(null), heading = useRef<HTMLHeadingElement>(null), saveLock = useRef(false)
-  const result = step === 6 ? recommendGuided(answers, catalog as GuidedCatalog) : null
-  const draft = result?.status !== 'COMPARISON'
-  const set = <K extends keyof GuidedAnswers>(key: K, value: GuidedAnswers[K]) => { setAnswers(a => ({ ...a, [key]: value })); setError('') }
-  const move = (to: number) => { setError(''); setStep(to); setChosen(null); window.scrollTo({ top: 0, behavior: 'instant' }) }
+  const heading = useRef<HTMLHeadingElement>(null)
+  const set = <K extends keyof QuickInputs>(key: K, value: QuickInputs[K]) => { setInput(a => ({ ...a, [key]: value })); setError('') }
+  const move = (n: number) => { setError(''); setStep(n); window.scrollTo({ top: 0, behavior: 'instant' }) }
   useEffect(() => { heading.current?.focus({ preventScroll: true }) }, [step])
-  useEffect(() => { if (chosen) { setConfirmed(false); saveLock.current = false; dialog.current?.showModal() } }, [chosen])
-  const next = () => {
-    const invalid = step < 5 ? validateStep(answers, step) : Array.from({ length: 5 }, (_, i) => validateStep(answers, i)).find(Boolean)
-    if (invalid) { setError(invalid); return }
-    if ((step === 1 && (answers.reserve !== 'yes' || answers.debt !== 'no' || answers.hold !== 'yes')) || (step === 2 && (answers.adult !== 'yes' || answers.mobile !== 'yes')) || (step === 3 && answers.holdings === 'unknown')) { move(6); return }
-    move(step + 1)
-  }
-  const choose = (card: Card) => { setChosen(card); setConfirmed(false) }
-  const summary = answerSummary(answers)
-  return <section className="guided-flow">
-    <div className="page-heading"><div><div className="eyebrow">YOUR ANSWERS, YOUR SAVING PLAN</div><h1 ref={heading} tabIndex={-1}>{step < 6 ? '내 답변으로 시작하는 저축' : result?.cards.length ? '답변에 맞춰 골라봤어요' : '먼저 확인할 내용이 있어요'}<span className="blue-dot">.</span></h1><p>{step < 6 ? '질문에 하나씩 답하면, 조건에 맞는 적금을 함께 찾아요.' : '선택한 답변과 연결된 상품 조건을 함께 확인해 보세요.'}</p></div><span className="pill"><Play size={13}/>질문형 시연</span></div>
-    <div className="guided-scope"><ShieldCheck size={18}/><span>케이뱅크 · 카카오뱅크 · 토스뱅크의 적금 3개 비교<span>2026년 8월 수집 금리 · 만기까지 같은 월 금액을 모으는 시연</span></span></div>
-    {step < 6 ? <div className="guided-layout"><section className="card guided-card">
-      <div className="guided-progress"><div><span>STEP {String(step + 1).padStart(2, '0')}</span><strong>{steps[step]}</strong><small>{step + 1} / 6</small></div><div role="progressbar" aria-label="질문 진행률" aria-valuemin={0} aria-valuemax={6} aria-valuenow={step + 1}><i style={{ width: `${(step + 1) / 6 * 100}%` }}/></div></div>
+  const answers = quickAnswers(input)
+  const result = step === 2 ? recommendGuided(answers, catalog) : null
+  const first = result?.cards[0]
+  const noGoal = input.purpose === '일단 모으기'
+  const next = () => { const invalid = quickValidate(input); if (invalid) { setError(invalid); return }; move(input.transfer ? 2 : 1) }
+  const selectTransfer = (value: QuickInputs['transfer']) => { set('transfer', value); move(2) }
+  const profile = <details className="quick-profile"><summary><ShieldCheck size={16}/>시연용 기본 금융정보 적용</summary><p>실제 계좌 연결 대신 아래 가상 인물의 정보를 사용해요.</p><ul>{demoProfile.map(line => <li key={line}>{line}</li>)}</ul></details>
+  return <section className="guided-flow quick-flow">
+    <div className="page-heading"><div><div className="eyebrow">A SAVING PLAN THAT FITS</div><h1 ref={heading} tabIndex={-1}>{step === 2 ? '이렇게 모아보세요' : step === 1 ? '우대조건 하나만 더' : '얼마씩 모아볼까요'}<span className="blue-dot">.</span></h1><p>{step === 2 ? '답변에 맞는 상품과 예상 금액을 함께 골랐어요.' : step === 1 ? '답변하면 바로 추천 결과를 보여드려요.' : '목표를 고르고, 무리 없는 월 저축액을 정해 주세요.'}</p></div><span className="pill">{step === 2 ? '추천 결과' : `${step + 1} / 2 단계`}</span></div>
+    <p className="quick-demo-line"><ShieldCheck size={15}/>가상 금융정보로 시연 · 선택한 금액과 답변을 추천에 반영</p>
+    {step < 2 ? <div className="guided-layout"><section className="card guided-card">
+      <div className="quick-progress" role="progressbar" aria-label="질문 진행률" aria-valuemin={0} aria-valuemax={2} aria-valuenow={step + 1}><i style={{ width: `${(step + 1) * 50}%` }}/></div>
       <div className="guided-body">
-        {step === 0 && <><h2>어떤 목표를 준비하고 있나요?</h2><p className="guided-lead">이미 모아둔 목돈은 넣지 않고, 앞으로 매달 모을 돈으로 시작해요.</p>
-          <Field title="저축 목적"><div className="choice-grid">{['목돈 마련', '여행', '주거', '비상금'].map(p => <button key={p} aria-pressed={answers.purpose === p} className={`choice ${answers.purpose === p ? 'selected' : ''}`} onClick={() => set('purpose', p)}>{p}{answers.purpose === p && <Check size={16}/>}</button>)}</div></Field>
-          <label htmlFor="guided-goal">목표로 모을 금액</label><div className="money-input"><input id="guided-goal" type="number" inputMode="numeric" min="1" max="1000000000" value={answers.goal} placeholder="예: 3600000" onChange={e => set('goal', e.target.value)}/><span>원</span></div><div className="amount-presets">{[1000000, 3000000, 3600000, 5000000].map(n => <button key={n} onClick={() => set('goal', String(n))}>{money(n / 10000)}만원</button>)}</div>
-          <label htmlFor="guided-months">목표까지 남은 기간</label><select id="guided-months" value={answers.months} onChange={e => set('months', e.target.value)}><option value="">기간을 선택해 주세요</option>{catalog.months.map(n => <option key={n} value={n}>{n}개월</option>)}</select></>}
-        {step === 1 && <><h2>무리 없이 모을 수 있는 금액은?</h2><p className="guided-lead">생활비·기존 납입·예정 지출을 빼고, 수입이 적은 달에도 가능한 금액을 골라요.</p>
-          <label htmlFor="guided-monthly">매달 모을 수 있는 금액</label><select id="guided-monthly" value={answers.monthly} onChange={e => set('monthly', e.target.value)}><option value="">월 저축액을 선택해 주세요</option>{catalog.monthly.map(n => <option key={n} value={n}>{money(n)}원</option>)}</select>
-          <Answer title="생활비와 비상금은 따로 확보했나요?" value={answers.reserve} set={v => set('reserve', v)}/>
-          <Answer title="저축보다 먼저 검토할 대출 상환이 있나요?" value={answers.debt} set={v => set('debt', v)}/>
-          <Answer title="저축할 돈을 만기까지 유지할 수 있나요?" hint="중간에 써야 할 돈은 별도로 남겨두는 경우를 포함해요." value={answers.hold} set={v => set('hold', v)}/></>}
-        {step === 2 && <><h2>가입 기준부터 확인할게요</h2><p className="guided-lead">해당하지 않는 상품을 추천하지 않도록 먼저 확인해요.</p>
-          <Answer title="국내에 거주하는 만 19세 이상 대한민국 국민인가요?" value={answers.adult} set={v => set('adult', v)}/>
-          <Answer title="은행 앱으로 가입 절차를 진행할 수 있나요?" hint="이번에 연결한 세 상품은 모바일 가입 상품이에요." value={answers.mobile} set={v => set('mobile', v)}/></>}
-        {step === 3 && <><h2>이미 이용 중인 상품이 있나요?</h2><p className="guided-lead">계좌 수와 기존 잔액은 가입 가능 여부를 비교하는 데 필요해요.</p>
-          <Answer title="비교할 세 은행에 예·적금 잔액이나 가입 중인 적금이 있나요?" hint="케이뱅크·카카오뱅크·토스뱅크를 함께 확인해 주세요. 잔액이 0원인 입출금통장만 있다면 아니요를 선택할 수 있어요." value={answers.holdings} set={v => set('holdings', v)}/>
-          {answers.holdings === 'yes' && <div className="guided-subquestions"><p>은행별로 기존 원금과 이자를 합쳐 입력해 주세요. 잔액이 없으면 0원이에요.</p>{([{ key: 'kbankBalance', name: '케이뱅크' }, { key: 'kakaoBalance', name: '카카오뱅크' }, { key: 'tossBalance', name: '토스뱅크' }] as const).map(bank => <div key={bank.key}><label htmlFor={bank.key}>{bank.name} 기존 잔액</label><div className="money-input"><input id={bank.key} type="number" min="0" inputMode="numeric" value={answers[bank.key]} onChange={e => set(bank.key, e.target.value)}/><span>원</span></div></div>)}<label htmlFor="guided-kbank-count">현재 보유한 코드K 자유적금 개수</label><input id="guided-kbank-count" type="number" min="0" max="100" value={answers.kbankCount} onChange={e => set('kbankCount', e.target.value)}/><Answer title="토스뱅크 자유 적금을 이미 보유하고 있나요?" value={answers.tossHeld} set={v => set('tossHeld', v)}/></div>}
-          <Answer title="토스뱅크 입출금통장을 보유하고 있나요?" hint="토스뱅크 자유 적금의 가입 조건이에요. 토스 앱 설치 여부와는 달라요." value={answers.tossAccount} set={v => set('tossAccount', v)}/></>}
-        {step === 4 && <><h2>어떤 우대조건을 지킬 수 있나요?</h2><p className="guided-lead">실제 납입 전의 계획을 묻는 질문이에요. 답변을 충족해야 예상 우대를 받을 수 있어요.</p>
-          <div className="guided-bank-label">카카오뱅크 자유적금</div><label htmlFor="guided-auto-months">자동이체로 납입할 수 있는 개월 수</label><div className="money-input"><input id="guided-auto-months" type="number" min="0" max={answers.months} inputMode="numeric" disabled={answers.autoUnknown} value={answers.autoUnknown ? '' : answers.autoMonths} placeholder="사용하지 않으면 0" onChange={e => set('autoMonths', e.target.value)}/><span>개월</span></div><label className="check-label"><input type="checkbox" checked={answers.autoUnknown} onChange={e => set('autoUnknown', e.target.checked)}/>자동이체 기간은 아직 모르겠어요</label>
-          <p className="muted">상품 계약 기간의 절반 이상을 자동이체해야 해요. 예를 들어 12개월 상품은 6개월 이상이에요.</p>
-          <Answer title="카카오뱅크 적금의 자동연장 원리금에 해당하나요?" hint="새로 납입할 금액과 자동연장된 원리금을 구분해요." value={answers.renewed} set={v => set('renewed', v)} yes="해당해요" no="해당하지 않아요"/>
-          {answers.tossAccount !== 'no' && <><div className="guided-bank-label">토스뱅크 자유 적금</div><Answer title="가입할 때 설정한 월 자동이체를 사용할 계획인가요?" value={answers.tossSchedule} set={v => set('tossSchedule', v)}/><Answer title="계약 기간의 모든 자동이체를 성공시킬 수 있나요?" value={answers.tossTransfers} set={v => set('tossTransfers', v)}/></>}
-          <div className="notice"><Info size={17}/><span>모르겠다는 답변은 확인 필요로 남기고 우대금리에 더하지 않아요. 실제 실적 달성과 가입 승인은 금융사 확인이 필요해요.</span></div></>}
-        {step === 5 && <><h2>이 답변으로 비교할까요?</h2><p className="guided-lead">답변을 바꾸면 금리와 추천 순서도 다시 비교해요.</p><dl className="guided-summary">{summary.map(row => <div key={row.title}><dt>{row.title}</dt><dd>{row.value}</dd></div>)}</dl><div className="notice"><ShieldCheck size={18}/><span>입력은 이 브라우저에서만 처리해요. 저장한 뒤에는 납입 기록과 회복 계획까지 시연할 수 있어요.</span></div></>}
+        {step === 0 ? <>
+          <fieldset className="guided-field quick-goals"><legend>무엇을 위해 모으나요?</legend><div className="choice-grid">{goals.map(g => <button type="button" key={g.name} aria-pressed={input.purpose === g.name} className={`choice ${input.purpose === g.name ? 'selected' : ''}`} onClick={() => { setInput(a => ({ ...a, purpose: g.name, goal: g.amount })); setError('') }}><span><strong>{g.name}</strong><small>{g.hint}</small></span>{input.purpose === g.name && <Check size={16}/>}</button>)}</div></fieldset>
+          {input.purpose && !noGoal && <details className="quick-custom-goal"><summary>목표 금액 변경 · {money(Number(input.goal))}원</summary><AmountInput goal value={input.goal} onChange={v => set('goal', v)}/></details>}
+          <AmountInput value={input.monthly} onChange={v => set('monthly', v)}/>
+          <fieldset className="guided-field quick-period"><legend>얼마 동안 모을까요?</legend><div className="guided-answers">{catalog.months.map(n => <button type="button" key={n} aria-pressed={input.months === String(n)} className={input.months === String(n) ? 'selected' : ''} onClick={() => set('months', String(n))}>{n}개월</button>)}</div></fieldset>
+          {input.monthly && Number(input.monthly) > 0 && <div className="quick-plan-hint"><Target size={17}/><span>{noGoal || !input.purpose ? `${input.months}개월 동안 원금 ${money(Number(input.monthly) * Number(input.months))}원을 모을 수 있어요.` : `이자 없이 목표를 채우려면 월 ${money(Math.ceil(Number(input.goal) / Number(input.months)))}원이 필요해요.`}</span></div>}
+        </> : <><span className="small-icon"><RefreshCw size={23}/></span><h2>자동이체를 끝까지 유지할 수 있나요?</h2><p className="guided-lead">가입할 때 매달 자동이체를 설정하고, 상품 만기까지 빠짐없이 납입하는 계획이에요.</p><div className="quick-transfer-options">{transfers.map(t => <button type="button" key={t.id} aria-pressed={input.transfer === t.id} onClick={() => selectTransfer(t.id)}><span><strong>{t.label}</strong><small>{t.hint}</small></span><ArrowRight size={19}/></button>)}</div><p className="quick-bonus-hint">카카오: 계약 절반 이상 자동이체 · 토스: 모든 자동이체 성공<br/>우대는 실제 조건을 지켜야 받을 수 있어요.</p></>}
         {error && <p className="form-error" role="alert">{error}</p>}
       </div>
-      <div className="form-footer"><button className="secondary" onClick={() => step ? move(step - 1) : onExit()}><ChevronLeft size={17}/>{step ? '이전 질문' : '시작 화면'}</button><button className="primary" onClick={next}>{step === 5 ? '내 답변으로 추천받기' : '다음 질문'}<ArrowRight size={18}/></button></div>
-    </section><aside className="guided-aside"><span className="small-icon"><Target size={22}/></span><h3>내가 정하는 저축</h3><div><span>목표 금액</span><strong>{answers.goal ? `${money(Number(answers.goal))}원` : '아직 답하지 않았어요'}</strong></div><div><span>기간</span><strong>{answers.months ? `${answers.months}개월` : '아직 답하지 않았어요'}</strong></div><div><span>월 저축액</span><strong>{answers.monthly ? `${money(Number(answers.monthly))}원` : '아직 답하지 않았어요'}</strong></div><hr/><p>이미 저장한 계획과 기록은<br/>새 계획을 저장하기 전까지 유지돼요.</p></aside></div> : result && <>
-      <div className="guided-result-toolbar"><div className="result-context"><span>월 {money(Number(answers.monthly))}원</span><span>{answers.months}개월</span><span>목표 {money(Number(answers.goal))}원</span></div><button className="secondary" onClick={() => move(0)}><ListChecks size={17}/>답변 수정하기</button></div>
-      <div className={`notice ${result.status !== 'COMPARISON' ? 'amber' : ''}`} role="status"><Info size={18}/><span>{result.reason}</span></div>
-      {result.missing.length > 0 && <div className="card guided-missing"><h3>추천을 확정하기 전에 확인할 질문</h3><ul>{result.missing.map(q => <li key={q}>{q}</li>)}</ul><button className="text-link" onClick={() => move(4)}>우대 답변 다시 확인하기<ArrowRight size={16}/></button></div>}
-      <div className="product-list">{result.cards.map((card, i) => { const p = card.products[0]; return <article key={p.option_id} className={`card product-card ${i === 0 ? 'recommended' : ''}`}><div className="row-between"><span className="pill">{i === 0 ? <><Sparkles size={13}/>내 답변 기준 추천</> : `대안 ${i}`}</span><span className="muted">{result.provisional ? '확인할 조건 있음' : '연결된 3개 상품 내 비교'}</span></div><div className="product-identity"><span className={`bank-mark ${p.institution.includes('카카오') ? 'kakao' : ''}`}>{p.institution.includes('케이') ? 'K' : p.institution.includes('카카오') ? 'B' : 'T'}</span><div><small>{p.institution.replace('주식회사 ', '')}</small><h3>{p.name}</h3></div><div className="product-rate"><small>답변상 적용 금리 · 연</small><strong>{p.rate.toFixed(2)}<span>%</span></strong></div></div><div className="product-facts"><span>목표일까지 예상 금액<strong>{money(card.goal_total)}원</strong></span><span>첫 상품의 예상 세후 이자<strong>{money(p.net_interest)}원</strong></span></div><ul className="reasons">{card.why.map(why => <li key={why}><Check size={15}/>{why}</li>)}</ul>{card.shortfall > 0 && <p className="guided-shortfall">목표까지 {money(card.shortfall)}원이 부족해요.</p>}<button className={i === 0 ? 'primary full' : 'secondary full'} onClick={() => choose(card)}>{draft ? '이 추천을 초안으로 남기기' : '이 상품으로 계획 시작하기'}<ArrowRight size={17}/></button></article> })}</div>
-      {!result.cards.length && <div className="card empty-state"><ListChecks size={32}/><h3>확인한 다음 이어갈 수 있어요</h3><p>답변한 내용은 유지돼요. 확인이 필요한 항목을 수정해 주세요.</p><button className="primary" onClick={() => move(result.status === 'NEEDS_ONBOARDING_REVIEW' || result.status === 'DIGITAL_CHANNEL_REQUIRED' ? 2 : result.status === 'NEEDS_HOLDINGS' ? 3 : 1)}>답변 확인하고 이어가기<ArrowRight size={17}/></button></div>}
-      {result.excluded.length > 0 && <details className="card guided-exclusions"><summary>이번 비교에서 제외한 상품과 이유</summary>{result.excluded.map(item => <div key={item.name}><strong>{item.name}</strong><p>{item.reason}</p></div>)}</details>}
-      <details className="card guided-exclusions"><summary>추천에 반영한 내 답변 보기</summary><dl className="guided-summary">{summary.map(row => <div key={row.title}><dt>{row.title}</dt><dd>{row.value}</dd></div>)}</dl></details>
-      <div className="bottom-notice"><Info size={17}/><span>기존 계산기의 상품별 예상 이자를 사용했어요. 목표일이 상품 만기보다 늦으면 이후에는 원금만 이어서 모으고, 재예치 이자는 더하지 않아요. 현재 금리·실제 수령액·가입 승인과는 다를 수 있어요.</span></div>
+      <div className="form-footer"><button className="secondary" onClick={() => step ? move(0) : onExit()}><ChevronLeft size={17}/>{step ? '금액 수정' : '시작 화면'}</button>{step === 0 ? <button className="primary" onClick={next}>{input.transfer ? '추천 다시 계산' : '우대조건 확인'}<ArrowRight size={18}/></button> : <span>답변 선택 → 바로 추천</span>}</div>
+    </section><aside className="guided-aside"><span className="small-icon"><Target size={22}/></span><h3>내 저축 미리보기</h3><div><span>매달 모을 돈</span><strong>{input.monthly ? `${money(Number(input.monthly))}원` : '직접 정해 주세요'}</strong></div><div><span>저축 기간</span><strong>{input.months}개월</strong></div><div><span>{noGoal ? '모을 원금' : '목표 금액'}</span><strong>{noGoal && input.monthly ? `${money(Number(input.monthly) * Number(input.months))}원` : input.goal ? `${money(Number(input.goal))}원` : '목표가 없어도 괜찮아요'}</strong></div>{profile}</aside><div className="quick-mobile-profile">{profile}</div></div> : result && <>
+      <div className="guided-result-toolbar"><div className="result-context"><span>월 {money(Number(input.monthly))}원</span><span>{input.months}개월</span><span>{noGoal ? '일단 모으기' : `목표 ${money(Number(input.goal))}원`}</span></div><button className="secondary" onClick={() => move(0)}>금액·목표 수정<ArrowRight size={16}/></button></div>
+      <div className="quick-answer-strip"><span>자동이체 계획</span><div className="guided-answers" role="group" aria-label="자동이체 답변 변경">{transfers.map(t => <button type="button" key={t.id} className={input.transfer === t.id ? 'selected' : ''} aria-pressed={input.transfer === t.id} onClick={() => set('transfer', t.id)}>{t.label}</button>)}</div></div>
+      {result.provisional && <div className="notice amber" role="status"><Info size={18}/><span>모르는 우대는 빼고 추천했어요. 자동이체 계획을 정하면 추천 순서가 달라질 수 있어요.</span></div>}
+      {first && first.shortfall > 0 && <div className="quick-gap" role="status"><strong>지금 계획은 목표까지 {money(first.shortfall)}원이 부족해요.</strong><p>월 저축액이나 기간을 바꿔 다시 비교할 수 있어요.</p><div>{quickAdjustments(input, catalog).map(option => <button className="secondary" key={option.label} onClick={() => setInput(option.input)}>{option.label}<ArrowRight size={15}/></button>)}<button className="text-link" onClick={() => move(0)}>직접 조정하기</button></div></div>}
+      <div className="quick-products">{result.cards.map((card, index) => {
+        const p = card.products[0], bonus = p.rate - p.base_rate
+        const rule = catalog.rules.find(r => r.option_id === p.option_id)!
+        const baseProjection = projectSaving(Number(input.monthly), p.term, p.base_rate, rule.model, catalog.start)
+        return <article key={p.option_id} className={`card product-card ${index === 0 ? 'recommended' : ''}`}>
+          <div className="row-between"><span className="pill">{index === 0 ? <><Sparkles size={14}/>{result.provisional ? '기본금리 기준 추천' : '이 조건에서 추천'}</> : `함께 비교한 상품 ${index}`}</span><small className="muted">{p.term}개월 상품</small></div>
+          <div className="product-identity"><span className={`bank-mark ${p.institution.includes('카카오') ? 'kakao' : ''}`}>{p.institution.includes('케이') ? 'K' : p.institution.includes('카카오') ? 'B' : 'T'}</span><div><small>{p.institution.replace('주식회사 ', '')}</small><h3>{p.name}</h3></div><div className="product-rate"><small>{bonus > 0 ? '조건 이행 시 · 연' : '기본금리 · 연'}</small><strong>{p.rate.toFixed(2)}<span>%</span></strong></div></div>
+          <p className="quick-rate-explain">{bonus > 0 ? `기본 ${p.base_rate.toFixed(2)}% + 자동이체 우대 ${bonus.toFixed(2)}%p` : rule.bonus.length ? '자동이체 우대는 포함하지 않았어요.' : '추가 우대조건 없이 받을 수 있는 금리예요.'}</p>
+          <div className="product-facts"><span>{input.months}개월 후 예상 금액<strong>{money(card.goal_total)}원</strong></span><span>{bonus > 0 ? '조건 이행 시 세후 이자' : '예상 세후 이자'}<strong>+{money(p.net_interest)}원</strong></span></div>
+          {index === 0 && <p className="quick-reason"><Check size={18}/><span>{result.cards.length > 1 ? `월 ${money(Number(input.monthly))}원으로 가능한 상품 중 예상 금액이 가장 커요.` : `월 ${money(Number(input.monthly))}원과 선택한 기간에 맞는 상품이에요.`}{!noGoal && card.shortfall === 0 && ' 예상 금액이 목표를 채워요.'}</span></p>}
+          <details className="quick-product-detail"><summary>추천 근거·금리 자세히 보기</summary><dl className="guided-summary"><div><dt>기본금리 기준 세후 이자</dt><dd>{money(baseProjection.net_interest)}원</dd></div><div><dt>계획한 우대로 늘어나는 이자</dt><dd>{money(p.net_interest - baseProjection.net_interest)}원</dd></div><div><dt>월 납입 가능 범위</dt><dd>{money(rule.minimum)}~{money(rule.maximum)}원</dd></div></dl><p>{bonus > 0 ? p.institution.includes('카카오') ? `${p.term}개월 중 ${Math.ceil(p.term / 2)}개월 이상 자동이체하고 만기 해지해야 해요. 자동연장 원리금은 제외해요.` : '가입 시 설정한 월 자동이체가 모든 회차에 성공해야 해요.' : '현재 답변에서 확인되지 않은 미래 우대는 더하지 않았어요.'}</p>{p.term < Number(input.months) && <p>상품 만기 이후 {Number(input.months) - p.term}개월은 원금만 모으는 별도 계획이며, 재예치 이자는 포함하지 않아요.</p>}<a className="official-link" href={p.source} target="_blank" rel="noopener noreferrer">수집 근거 공시 목록 보기 ↗</a></details>
+        </article>
+      })}</div>
+      {!first && <div className="card empty-state"><Target size={30}/><h3>이 금액에 맞는 상품이 없어요</h3><p>{result.reason}</p><button className="primary" onClick={() => move(0)}>월 저축액 조정하기<ArrowRight size={17}/></button></div>}
+      {result.excluded.length > 0 && <details className="card guided-exclusions"><summary>비교에서 제외한 상품</summary>{result.excluded.map(item => <div key={item.name}><strong>{item.name}</strong><p>{item.reason}</p></div>)}</details>}
+      <div className="quick-result-profile">{profile}</div>
+      <div className="bottom-notice"><Info size={17}/><span>2026년 8월 수집한 인터넷은행 적금 3개를 비교한 시연입니다. 가상 금융정보와 선택한 답변을 사용하며, 금리와 실제 수령액은 가입 시 확인해야 해요.</span></div>
     </>}
-    {chosen && result && <dialog ref={dialog} className="modal" aria-labelledby="guided-save-title" onCancel={() => setChosen(null)}><div className="modal-title"><h2 id="guided-save-title">{draft ? '확인할 답변과 함께 초안으로 남겨요' : '내 답변으로 만든 계획을 시작할까요?'}</h2><button className="icon-button" aria-label="닫기" onClick={() => setChosen(null)}><X size={20}/></button></div><p className="modal-description">{chosen.products[0].name} · 답변상 연 {chosen.products[0].rate.toFixed(2)}%</p><div className="save-summary"><span>목표 금액<strong>{money(Number(answers.goal))}원</strong></span><span>매달 모을 돈<strong>{money(Number(answers.monthly))}원</strong></span><span>저축 기간<strong>{answers.months}개월</strong></span></div><div className="notice"><Info size={18}/><span>{draft ? '확인한 답변과 추천을 초안으로 저장해요. 현재 계획과 기록은 유지돼요.' : '기존 가상 계획과 납입 기록을 새 계획으로 교체해요. 기록한 원금은 0원부터 시작하고, 추천에 사용한 답변도 함께 저장돼요.'}</span></div><label className="check-label"><input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)}/>{draft ? '확인할 조건을 남긴 초안임을 확인했어요.' : '새 시연 계획으로 교체하고 시작할게요.'}</label><button className="primary full" disabled={!confirmed} onClick={() => { if (saveLock.current || !confirmed) return; saveLock.current = true; onSave(answers, chosen, result.status) }}>{draft ? '답변과 초안 저장하기' : '새 저축 계획 저장하기'}<CheckCircle2 size={18}/></button></dialog>}
   </section>
 }

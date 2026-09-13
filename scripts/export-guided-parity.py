@@ -37,7 +37,7 @@ variations = [
     {'tossAccount':'yes','tossSchedule':'yes','tossTransfers':'yes'},
     {'tossAccount':'yes','tossSchedule':'yes','tossTransfers':'unknown'},
 ]
-for monthly, months, variation in itertools.product(exporter.MONTHLY, [6,12,24,36,60], variations):
+for monthly, months, variation in itertools.product(exporter.MONTHLY + [1, 999, 1000, 9999, 10000, 171237, 170000, 300001, 2999999, 3000000, 3000001], [6,12,24,36,60], variations):
     a = {**base, 'monthly':str(monthly),'months':str(months),'goal':str(monthly*months),**variation}
     cases.append(a)
 for variation in [

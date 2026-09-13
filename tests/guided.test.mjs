@@ -2,6 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { blankAnswers, recommendGuided, validateStep } from '../src/guided.ts'
+import { projectSaving } from '../src/projection.ts'
+import { bumpAmount, quickBlank, quickAnswers, quickValidate, quickAdjustments } from '../src/quick.ts'
 const read = file => JSON.parse(readFileSync(new URL(file,import.meta.url),'utf8'))
 const catalog = read('../public/demo/guided.json')
 const fixtures = read('./fixtures/guided-parity.json')
@@ -39,4 +41,33 @@ test('Unconfirmed eligibility, cash and maturity plans stop a confirmed recommen
 test('The guided scope cannot expand silently and every projection is present',()=>{
   assert.equal(new Set(catalog.rules.map(r=>r.product_id)).size,3);assert.equal(catalog.rules.length,13)
   for(const r of catalog.rules)for(const monthly of catalog.monthly)for(const rate of [r.base_rate,r.max_rate])assert.ok(catalog.projections[`${r.option_id}|${monthly}|${rate.toFixed(2)}`])
+})
+
+test('Direct calculation preserves all 110 original Decimal projections, including tax rounding',()=>{
+  for(const [key, original] of Object.entries(catalog.projections)) {
+    const [id, amount, rate] = key.split('|').map(Number)
+    const rule = catalog.rules.find(r=>r.option_id===id)
+    assert.deepEqual(projectSaving(amount,rule.term,rate,rule.model,catalog.start),{
+      principal:original.principal,net_interest:original.net_interest,gross_balance_ceiling:original.gross_balance_ceiling,
+    },key)
+  }
+})
+
+test('Quick demo accepts arbitrary whole-won input and repeated increments, preserving explicit unknowns',()=>{
+  const blank = quickBlank();assert.equal(blank.monthly,'');assert.ok(quickValidate(blank))
+  assert.equal(bumpAmount(bumpAmount('170000',30000),30000),'230000')
+  assert.equal(bumpAmount('',10000),'10000');assert.equal(bumpAmount('0',-10000),'0')
+  assert.equal(bumpAmount('999999999',50000),'1000000000')
+  const input = { ...blank,purpose:'일단 모으기',monthly:'171237',transfer:'unknown' }
+  assert.equal(quickValidate(input),'');assert.equal(quickAnswers(input).goal,String(171237*12))
+  for(const monthly of ['0','-1','0.1','1e5','NaN','1000000001'])assert.ok(quickValidate({...input,monthly}))
+  const unknown = recommendGuided(quickAnswers(input),catalog)
+  assert.ok(unknown.cards.length);assert.equal(unknown.provisional,true)
+  assert.ok(unknown.cards.every(c=>c.products[0].rate===c.products[0].base_rate))
+  const yes = recommendGuided(quickAnswers({...input,transfer:'yes'}),catalog)
+  assert.equal(yes.cards[0].products[0].name,'카카오뱅크 자유적금')
+  const goal = {...input,purpose:'여행 자금',goal:'3000000',transfer:'yes'}
+  const options = quickAdjustments(goal,catalog);assert.ok(options.length)
+  for(const option of options)assert.equal(recommendGuided(quickAnswers(option.input),catalog).cards[0].shortfall,0)
+  assert.equal(recommendGuided(quickAnswers({...input,monthly:'3000001'}),catalog).cards.length,0)
 })

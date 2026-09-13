@@ -5,5 +5,6 @@ import App from './App'
 import './styles.css'
 import './flows.css'
 import './guided.css'
+import './quick.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>)
