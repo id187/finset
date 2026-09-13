@@ -1,10 +1,11 @@
+import type { GuidedAnswers } from './guided'
 export type Product = { product_id: string; option_id: number; institution: string; name: string; rate: number; base_rate: number; term: number; net_interest: number; source: string; calculation_assumption: string; maturity?: string; additional_cost?: number; bonus_earned?: string[] }
 export type Card = { products: Product[]; goal_total: number; shortfall: number; why: string[]; role: string; provisional?: boolean }
 export type Payment = { id: string; date: string; amount: number; scheduledDate?: string | null }
 export type Schedule = { date: string; amount: number }
 export type PlanVersion = { at: string; label: string; before: Schedule[]; after: Schedule[] }
-export type Saved = { title: string; goal: number; monthly: number; months: number; startDate?: string; product?: Product; products?: Product[]; payments: Payment[]; schedule?: Schedule[]; changes: string[]; versions?: PlanVersion[]; paymentEvents?: { at: string; action: string; before: Payment; after?: Payment }[] }
-export type Draft = { id: string; title: string; goal: number; monthly: number; months: number; startDate: string; sector: string; scenario?: string; card: Card; at: string }
+export type Saved = { guidedAnswers?: GuidedAnswers; answerSummary?: {title:string;value:string}[]; comparisonScope?:string; title: string; goal: number; monthly: number; months: number; startDate?: string; product?: Product; products?: Product[]; payments: Payment[]; schedule?: Schedule[]; changes: string[]; versions?: PlanVersion[]; paymentEvents?: { at: string; action: string; before: Payment; after?: Payment }[] }
+export type Draft = { guidedAnswers?: GuidedAnswers; id: string; title: string; goal: number; monthly: number; months: number; startDate: string; sector: string; scenario?: string; card: Card; at: string }
 export const TODAY = '2027-01-11'
 export const BASE_START = '2026-09-11'
 export const money = (n: number) => n.toLocaleString('ko-KR')
