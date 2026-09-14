@@ -8,3 +8,5 @@ import './guided.css'
 import './quick.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>)
+
+import './catalogue.css'

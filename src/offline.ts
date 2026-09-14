@@ -48,7 +48,11 @@ export function evaluateAnswers(option: ConditionOption | undefined, answers: An
     if (q.type === 'boolean' && typeof value !== 'boolean') throw new Error('가능 여부를 선택해 주세요.')
     if (q.type === 'number' && (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0 || value > (q.maximum ?? 1000000000))) throw new Error('계약 기간 안의 정수 개월 수를 입력해 주세요.')
   }
-  const components = option.rule.bonus.map(b => ({ ...b, ...evaluate(b.when, answers) }))
+  return evaluateBonus(option.rule, answers)
+}
+
+export function evaluateBonus(rule: ConditionOption['rule'], answers: Answers) {
+  const components = rule.bonus.map(b => ({ ...b, ...evaluate(b.when, answers) }))
   const groups = new Map<string, typeof components>()
   for (const b of components) { const key = b.exclusive_group ?? b.id; groups.set(key, [...(groups.get(key) || []), b]) }
   let low = 0, high = 0
@@ -63,10 +67,10 @@ export function evaluateAnswers(option: ConditionOption | undefined, answers: An
     if (winner && floor > 0) earned.push(winner.id)
     missing.push(...group.filter(b => b.state === null && b.rate > floor).flatMap(b => b.missing))
   }
-  const cap = option.rule.bonus_cap
+  const cap = rule.bonus_cap
   if (cap !== undefined && cap !== null) { low = Math.min(low, cap); high = Math.min(high, cap); if (low >= cap) missing = [] }
   return {
-    rate: Math.round((option.rule.base_rate + low) * 1e8) / 1e8,
+    rate: Math.round((rule.base_rate + low) * 1e8) / 1e8,
     bonus_rate: low, possible_bonus_rate: high, missing: [...new Set(missing)].sort(), earned,
     components: components.map(b => ({ id: b.id, rate: b.rate, state: b.state === true ? 'met' : b.state === false ? 'unmet' : 'unknown' })),
     scope: 'collected_bonus_clause_only', actual_bank_approval: false,

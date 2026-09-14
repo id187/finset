@@ -9,9 +9,9 @@ export function quickFromAnswers(a: GuidedAnswers): QuickInputs {
 }
 // Explicit mock MyData profile. These are demo facts, never inferred user facts.
 export const demoProfile = [
-  '국내 거주 성인 내국인 · 은행 앱 가입 가능',
+  '국내 거주 만 19세 내국인 · 금융기관 앱·웹 가입 가능',
   '생활비·비상금은 별도 확보 · 우선 검토할 대출 상환 없음',
-  '비교 은행의 기존 예·적금 잔액 0원 · 보유 적금 없음',
+  '비교하는 모든 금융기관의 기존 예·적금 잔액 0원 · 보유 적금 없음',
   '토스뱅크 입출금통장 보유 · 새 돈으로 적금 시작',
   '선택한 월 저축액을 만기까지 유지하는 상황',
 ]
