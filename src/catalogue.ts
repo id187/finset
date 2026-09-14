@@ -28,6 +28,9 @@ export type Filters = { sector: string; flexible: boolean }
 export const defaultFilters = (): Filters => ({ sector: 'all', flexible: false })
 export const sectors = [{ id: 'all', label: '전체' }, { id: 'bank', label: '은행' }, { id: 'savings_bank', label: '저축은행' }, { id: 'credit_union', label: '신협' }]
 export type FullResult = GuidedResult & { questions: Question[]; compared: number; matched: number }
+// Supplied only by the interview's typed answer mapping. The original demo
+// profile remains the default for regression fixtures and example screens.
+export type ComparisonContext = { sectors?: string[]; tossAccount?: boolean | null; renewedPrincipal?: boolean | null; holdToMaturity?: boolean | null }
 
 export function unpackCatalogue(raw: unknown): Catalogue {
   const data = raw as Catalogue & { groups: (Partial<CatalogueRule> & { options: Partial<CatalogueRule>[] })[] }
@@ -46,7 +49,7 @@ export function loadCatalogue() {
   return cache
 }
 
-export function recommendCatalogue(q: QuickInputs, catalogue: Catalogue, filters = defaultFilters(), extra: Record<string, unknown> = {}): FullResult {
+export function recommendCatalogue(q: QuickInputs, catalogue: Catalogue, filters = defaultFilters(), extra: Record<string, unknown> = {}, context: ComparisonContext = {}): FullResult {
   const empty = (status: string, reason: string): FullResult => ({ status, reason, cards: [], missing: [], questions: [], excluded: [], provisional: true, compared: 0, matched: 0 })
   const invalid = quickValidate(q)
   if (invalid || !q.transfer) return empty('NEEDS_INPUT', invalid || '자동이체 계획을 선택해 주세요.')
@@ -54,10 +57,11 @@ export function recommendCatalogue(q: QuickInputs, catalogue: Catalogue, filters
   const monthly = Number(q.monthly), months = Number(q.months)
   const goal = q.purpose === '일단 모으기' ? monthly * months : Number(q.goal)
   const facts: Record<string, unknown> = {
-    age: 19, nationality: 'KR', residency: 'KR', toss_account: true,
+    age: 19, nationality: 'KR', residency: 'KR', toss_account: 'tossAccount' in context ? context.tossAccount : true,
     'held_count.finlife:202608:saving:0014674:01012000200000000003': 0,
     'kakao.auto_months': q.transfer === 'unknown' ? null : q.transfer === 'yes' ? months : 0,
-    'kakao.renewed_principal': false, 'contract.hold_to_maturity': true,
+    'kakao.renewed_principal': 'renewedPrincipal' in context ? context.renewedPrincipal : false,
+    'contract.hold_to_maturity': 'holdToMaturity' in context ? context.holdToMaturity : true,
     'toss.original_monthly_schedule': q.transfer === 'unknown' ? null : q.transfer === 'yes',
     'toss.all_transfers': q.transfer === 'unknown' ? null : q.transfer === 'yes',
     'hana.auto_months_before_maturity': q.transfer === 'unknown' ? null : q.transfer === 'yes' ? months : 0,
@@ -76,19 +80,26 @@ export function recommendCatalogue(q: QuickInputs, catalogue: Catalogue, filters
     return projectionCache.get(key)!
   }
   const all: { card: Card; rule: CatalogueRule; upper: number; missing: string[] }[] = []
+  const potential: { rule: CatalogueRule; upper: number; missing: string[] }[] = []
   const excluded = new Map<string, { name: string; reason: string }>()
   const examined = new Set<string>()
   for (const rule of catalogue.rules) {
     if (filters.sector !== 'all' && rule.sector !== filters.sector || filters.flexible && !rule.flexible) continue
+    if (context.sectors && !context.sectors.includes(rule.sector)) continue
     examined.add(rule.product_id)
     const exclude = (reason: string) => excluded.set(rule.product_id, { name: `${rule.institution} · ${rule.name}`, reason })
     if (rule.term > months) { exclude('선택한 목표일보다 상품 만기가 늦어요.'); continue }
     if (monthly < rule.minimum || rule.maximum !== null && monthly > rule.maximum) { exclude(`월 납입 범위 ${rule.minimum.toLocaleString('ko-KR')}원 이상${rule.maximum === null ? '' : ` ~ ${rule.maximum.toLocaleString('ko-KR')}원 이하`}에 맞지 않아요.`); continue }
-    if (evaluate(rule.eligibility, facts).state !== true) { exclude('가입조건을 확인할 수 없어 추천에서 제외했어요.'); continue }
+    const eligibility = evaluate(rule.eligibility, facts)
+    if (eligibility.state === false) { exclude('답변이 가입조건에 맞지 않아 제외했어요.'); continue }
     const evaluated = evaluateBonus(rule, facts)
     const rate = evaluated.rate
     const low = project(rule, rate), high = project(rule, rule.base_rate + evaluated.possible_bonus_rate)
     if (high.gross_balance_ceiling > catalogue.comparison_limit) { exclude('원리금이 시연의 기관별 비교 한도 1억원을 넘어요.'); continue }
+    if (eligibility.state === null) {
+      potential.push({ rule, upper: monthly * months + high.net_interest, missing: [...eligibility.missing, ...evaluated.missing] })
+      exclude('가입에 필요한 답변을 아직 확인하지 못했어요.'); continue
+    }
     const p: Product = { product_id: rule.product_id, option_id: rule.option_id, institution: rule.institution, name: rule.name,
       term: rule.term, rate, base_rate: rule.base_rate, net_interest: low.net_interest,
       maturity: addMonths(catalogue.start, rule.term), source: rule.product_url || rule.source_url,
@@ -105,7 +116,7 @@ export function recommendCatalogue(q: QuickInputs, catalogue: Catalogue, filters
   const included = new Set<string>(), best: typeof all = []
   for (const item of all) if (!included.has(item.rule.product_id)) { included.add(item.rule.product_id); if (best.length < 3) best.push(item) }
   const cutoff = best.length === 3 ? best[2].card.goal_total : 0
-  const competitive = all.filter(item => item.missing.length && item.upper >= cutoff)
+  const competitive = [...all, ...potential].filter(item => item.missing.length && item.upper >= cutoff)
   const missing = [...new Set(competitive.flatMap(item => item.missing))]
   const questionCandidates = [...competitive, ...all.filter(item => item.rule.questions.some(question => question.key in extra))]
   const questions = [...new Map(questionCandidates.flatMap(item => item.rule.questions.filter(question => !coreKeys.has(question.key) && (missing.includes(question.key) || question.key in extra))).map(q => [q.key, q])).values()]
