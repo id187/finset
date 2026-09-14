@@ -25,7 +25,7 @@ export function changeCoreAnswer(request: CoreRequest, key: string, value: Answe
 export function changeCorePlan(request: CoreRequest, patch: Record<string, unknown>, current: Record<string, unknown>) {
   const answers = { ...request.answers }, invalidated: string[] = []
   const changedDate = ['start_date', 'goal_date'].some(k => k in patch && !sameAnswer(patch[k], current[k]))
-  const changedPlan = changedDate || ['monthly', 'cash', 'reserve', 'low_month_capacity'].some(k => k in patch && !sameAnswer(patch[k], current[k]))
+  const changedPlan = changedDate || ['monthly', 'cash', 'reserve', 'available_now', 'low_month_capacity'].some(k => k in patch && !sameAnswer(patch[k], current[k]))
   if (changedPlan) {
     for (const action of new Set(Object.values(relatedIntent))) { answers[`bonus_intent.${action}`] = null; invalidated.push(`bonus_intent.${action}`) }
     for (const key of Object.keys(answers)) if (key.startsWith('bonus_intent.')) { answers[key] = null; invalidated.push(key) }
@@ -33,6 +33,12 @@ export function changeCorePlan(request: CoreRequest, patch: Record<string, unkno
     if (changedDate) for (const key of Object.keys(relatedIntent)) if (key.includes('months')) { answers[key] = null; invalidated.push(key) }
   }
   for (const key of Object.keys(patch)) { if (key in answers) { delete answers[key]; invalidated.push(key) } }
+  if (patch.facts) for (const key of Object.keys(patch.facts as Record<string, unknown>)) {
+    if (key in answers) { delete answers[key]; invalidated.push(key) }
+  }
+  if (['held_product_ids', 'bank_balances', 'product_balances'].some(k => k in patch && !sameAnswer(patch[k], request.profile?.[k]))) {
+    for (const key of Object.keys(answers)) if (/^(bank_balance\.|product_balance\.|held_count\.|combined_monthly\.)/.test(key)) { delete answers[key]; invalidated.push(key) }
+  }
   if (changedDate) for (const key of Object.keys(answers)) if (key.endsWith('_qualifying_months')) { answers[key] = null; invalidated.push(key) }
   return { request: { ...request, profile: { ...request.profile, ...patch }, answers }, invalidated }
 }

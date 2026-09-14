@@ -12,7 +12,7 @@ let browser;
  async function next(){await click(b('다음')); if(!replay) await page.locator('.loading-state').waitFor({state:'hidden'});}
  async function chooseCase(name){await click(b('처음부터'));const pending=replay?null:page.waitForResponse(r=>r.url().includes('/api/v2/recommend'));await click(page.locator('.core-cases button').filter({hasText:name}).first());if(pending)await pending;await page.locator('.loading-state').waitFor({state:'hidden'});await page.locator('.core-profile').waitFor()}
  async function layout(tag){const size=page.viewportSize();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`overflow ${tag}`);if(await page.locator('.core-question').count())assert.ok(await page.locator('.core-question').evaluate(e=>e.getBoundingClientRect().width<=641));checks.push(`${tag}: ${size.width}x${size.height}`)}
- await page.goto(base+'?screen=guided');await page.locator('.core-flow').waitFor();await page.locator('.loading-state').waitFor({state:'hidden'});
+ await page.goto(base+'?screen=guided&examples=1');await page.locator('.core-flow').waitFor();await page.locator('.loading-state').waitFor({state:'hidden'});
  if(replay){await page.locator('.core-cases').waitFor();await click(page.locator('.core-cases button').filter({hasText:'우대 행동 미정'}));}
  else{
   await page.locator('#core-goal').waitFor();await click(b('첫 목돈'));await click(b('300만원'));await click(b('12개월'));await next();

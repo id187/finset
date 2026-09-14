@@ -20,7 +20,8 @@ VERSION = '2026-09-13-consistency-1'
 TOP = {'start_date', 'goal_date', 'goal_amount', 'cash', 'reserve', 'monthly', 'income_pattern', 'low_month_capacity',
        'fund_type', 'withdrawal_need', 'early_access_strategy', 'early_access_amount', 'reserve_confirmed',
        'holdings_complete', 'bank_balances_complete', 'sectors', 'channels', 'high_interest_debt',
-       'deadline_flexibility', 'latest_goal_date', 'contribution_preference', 'bank_policy', 'existing_bank_ids'}
+       'deadline_flexibility', 'latest_goal_date', 'contribution_preference', 'bank_policy', 'existing_bank_ids',
+       'budget_basis', 'available_now', 'available_amounts_confirmed'}
 STRUCTURED = {'planned_spending', 'bank_balances', 'held_product_ids', 'product_balances', 'facts'}
 CHOICES = {
     'income_pattern': [('steady', '예, 매달 비슷해요'), ('variable', '아니오, 달마다 달라요'), ('none', '정기 수입은 없어요')],
@@ -221,6 +222,24 @@ def profile_summary(p):
     return {k: copy.deepcopy(v) for k, v in p.items() if k in TOP | {'planned_spending'} and k not in ('existing_bank_ids',)}
 
 
+def normalize_budget(profile):
+    """v1.6 available amounts are already net of expenses; keep the core intact."""
+    p = copy.deepcopy(profile)
+    if 'budget_basis' in p and p['budget_basis'] != 'available_after_expenses':
+        raise ValueError('저축할 금액의 기준을 확인해 주세요.')
+    if p.get('budget_basis') == 'available_after_expenses':
+        if p.get('available_amounts_confirmed') is not True:
+            raise ValueError('쓸 돈을 제외한 금액인지 확인해 주세요.')
+        if type(p.get('available_now')) is not int or not 0 <= p['available_now'] <= 1000000000:
+            raise ValueError('지금 맡길 수 있는 금액을 확인해 주세요.')
+        if any(k in p for k in ('cash', 'reserve', 'planned_spending')):
+            raise ValueError('전체 자금과 사용 가능한 금액을 섞어 입력할 수 없습니다.')
+        p.update(cash=p['available_now'], reserve=0, planned_spending=[], reserve_confirmed=True)
+    elif 'available_now' in p or 'available_amounts_confirmed' in p:
+        raise ValueError('가용 금액의 기준을 함께 입력해 주세요.')
+    return p
+
+
 def execute(request):
     if not isinstance(request, dict):
         raise ValueError('요청 형식을 확인해 주세요.')
@@ -288,6 +307,7 @@ def execute(request):
     for key in ('reserve_confirmed', 'holdings_complete', 'bank_balances_complete', 'high_interest_debt'):
         if profile.get(key) is not None and type(profile[key]) is not bool:
             raise ValueError('확인 답변의 형식을 확인해 주세요.')
+    profile = normalize_budget(profile)
     result = engine.recommend(profile, rules)
     keys = list(dict.fromkeys(result.get('questions', []) + result.get('remaining_questions', []) + result.get('planning_questions', []) + result.get('liquid_comparison', {}).get('questions', [])))
     cards = [question_card(key, profile) for key in keys[:100]]
