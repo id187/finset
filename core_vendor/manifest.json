@@ -1,0 +1,21 @@
+{
+  "version": "2026-09-13-consistency-1",
+  "files": {
+    "finset_recommendation/README.md": "a33c6634c2d979e1cd842c8a24d72f7ffe12e687634ffa7ddb08e95e6a25445c",
+    "finset_recommendation/bonus_intent.py": "d332245574bf13e9004b9995c71f6079630fcf3a6eab9875493f542036518e3a",
+    "finset_recommendation/calculator.py": "fcb08c16c3b971ef5ad4c1ae1d7b6467a71a7cc693ae0ecf42f626a89dc23a91",
+    "finset_recommendation/conditions.py": "63f2681a350a056a0d8ab1239ee9e4f529a01fff3b24daf7101837cdc06032b7",
+    "finset_recommendation/consistency_review_20260913/test_consistency.py": "552df394643c25d7d9994a2a06fe3b2777c33305f6ae791fd251d228e5d732f8",
+    "finset_recommendation/engine.py": "3e6745cf665c2cecac5a3daa43e6500892eabe6d9e4f8c2cc9297aff3421c57d",
+    "finset_recommendation/explanations.py": "9fb4907f1ec677bd96c092b8f58c93de0b213545923bd9f40fa6009628ebcf39",
+    "finset_recommendation/liquid.py": "2c33a3734ac6ba9ca37a3ef2f16540425e096f1c3a805083bdd02569b414c639",
+    "finset_recommendation/liquid_rules.json": "9bfbab842659c39ba36d7de1a6bf785bcfb4bc9e197df17d323e9939918673fc",
+    "finset_recommendation/questions.py": "19f447111d73718edd77e264bb823e5824f645b705a52c83c775396fc7a9c70d",
+    "finset_recommendation/recovery.py": "2654ce54ce387fcba2742023e0e28aa3639b2e223088de70924e893d10542d53",
+    "finset_recommendation/rules.json": "2381a11449b41c325d2996214bf4720fa70be5e264933863fd07f43a6c7181d3",
+    "finset_recommendation/source.py": "fb6cba6f0613254356377966f0c0688c9534ef377aa2e653212c4a415eec92cb",
+    "finset_recommendation/source_lock.json": "fed6444a4a1f7003ba6b1b83dcf961ffd4a12bde7cfb6a7a8cd72f103ac3df73",
+    "fixtures/cases.json": "2a8573cd96f2fa678440e8962d322b6357e0817c8ea34d6554fcf65e922d9b83",
+    "verify.py": "e05ba11d7e5579229eaef9cac7f00a4757f452d28111a2bf7c6083d7d615db5f"
+  }
+}

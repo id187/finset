@@ -2,3 +2,6 @@
 *.png binary
 *.svg text eol=lf
 *.json text eol=lf
+
+# Preserve the delivered core byte-for-byte for manifest verification.
+core_vendor/** -text

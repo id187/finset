@@ -20,6 +20,7 @@ from calculator import month
 from datetime import date
 import source
 from condition_db import build as build_conditions, catalog, evaluate_answers
+from core_runtime import call as call_core
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
 BASE = json.loads((DATA / 'fixtures/recommendation_base.json').read_text(encoding='utf-8'))
@@ -55,7 +56,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
         try:
-            if parsed.path == '/api/conditions':
+            if parsed.path == '/api/v2/meta':
+                self.send_json(call_core({'action': 'metadata'}))
+            elif parsed.path == '/api/conditions':
                 self.send_json(catalog())
             elif parsed.path == '/api/source':
                 rows = source.inventory()
@@ -83,13 +86,15 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({'message': '상품 데이터를 불러오지 못했어요. 데이터 경로와 API 실행 상태를 확인해 주세요.'}, 503)
 
     def do_POST(self):
-        if self.path not in ('/api/recovery', '/api/conditions/evaluate'):
+        if self.path not in ('/api/recovery', '/api/conditions/evaluate', '/api/v2/recommend'):
             return self.send_json({'message': '지원하지 않는 요청이에요.'}, 404)
         try:
             size = int(self.headers.get('Content-Length', '0'))
             if not 0 < size <= 65536:
                 raise ValueError('요청 크기를 확인해 주세요.')
             payload = json.loads(self.rfile.read(size))
+            if self.path == '/api/v2/recommend':
+                return self.send_json(call_core(payload))
             if self.path == '/api/conditions/evaluate':
                 return self.send_json(evaluate_answers(payload.get('option_id'), payload.get('answers')))
             result = project_recovery(payload['plan'], payload['change'])
@@ -104,5 +109,6 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == '__main__':
     source.connect().close()  # Verify the pinned hash before serving any data.
     build_conditions()
-    print('Fin-Set API ready: http://127.0.0.1:8000', flush=True)
-    ThreadingHTTPServer(('127.0.0.1', 8000), Handler).serve_forever()
+    port = int(os.environ.get('FINSET_API_PORT', '8000'))
+    print(f'Fin-Set API ready: http://127.0.0.1:{port}', flush=True)
+    ThreadingHTTPServer(('127.0.0.1', port), Handler).serve_forever()

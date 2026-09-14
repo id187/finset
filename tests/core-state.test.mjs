@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {changeCoreAnswer,changeCorePlan} from '../src/coreState.ts';
+test('fact change invalidates only its action and preserves unrelated answers',()=>{
+ const r=changeCoreAnswer({answers:{age:25,sectors:['bank'],'kakao.auto_months':12,'bonus_intent.kakao.auto_transfer':true,'bonus_intent.kbank.card':false}},'kakao.auto_months',3);
+ assert.equal(r.request.answers['bonus_intent.kakao.auto_transfer'],null);assert.equal(r.request.answers['bonus_intent.kbank.card'],false);assert.equal(r.request.answers.age,25);assert.deepEqual(r.invalidated,['bonus_intent.kakao.auto_transfer']);
+});
+test('unchanged fact keeps deliberate action consent',()=>{const r=changeCoreAnswer({answers:{'kakao.auto_months':12,'bonus_intent.kakao.auto_transfer':true}},'kakao.auto_months',12);assert.equal(r.request.answers['bonus_intent.kakao.auto_transfer'],true)});
+test('compare, false, unknown and unanswered remain separate',()=>{for(const value of ['compare',false,null]){const r=changeCoreAnswer({},'contribution_preference',value);assert.equal(r.request.answers.contribution_preference,value)}assert.equal({}.contribution_preference,undefined)});
+test('plan amount replaces stale top-level answers and retains personal facts',()=>{const r=changeCorePlan({answers:{monthly:300000,age:25,sectors:['bank'],'bonus_intent.kakao.auto_transfer':true,contribution_preference:'fixed_ok'}},{monthly:371259},{monthly:300000});assert.equal(r.request.profile.monthly,371259);assert.ok(!('monthly' in r.request.answers));assert.equal(r.request.answers.age,25);assert.deepEqual(r.request.answers.sectors,['bank']);assert.equal(r.request.answers.contribution_preference,null)});
+test('goal amount only changes keep unrelated consent',()=>{const r=changeCorePlan({answers:{'bonus_intent.kakao.auto_transfer':true}},{goal_amount:5000000},{goal_amount:3600000});assert.equal(r.request.answers['bonus_intent.kakao.auto_transfer'],true)});
+test('five-year target remains intact and old duration-dependent answer becomes unknown',()=>{const r=changeCorePlan({answers:{'hana_mwc.salary_qualifying_months':6,age:25}},{goal_date:'2031-09-14'},{goal_date:'2027-09-14'});assert.equal(r.request.profile.goal_date,'2031-09-14');assert.equal(r.request.answers['hana_mwc.salary_qualifying_months'],null);assert.equal(r.request.answers.age,25)});
+test('no intermediate use removes obsolete withdrawal assumptions',()=>{const r=changeCoreAnswer({answers:{withdrawal_need:'possible',early_access_strategy:'separate_cash',early_access_amount:400000,age:25}},'withdrawal_need','none');assert.ok(!('early_access_amount' in r.request.answers));assert.equal(r.request.answers.age,25)});

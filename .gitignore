@@ -9,3 +9,6 @@ app_data/
 __pycache__/
 *.pyc
 *.tsbuildinfo
+core_vendor/fixtures/
+core_vendor/finset_recommendation/rules.json
+core_vendor/finset_recommendation/liquid_rules.json
