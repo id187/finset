@@ -21,5 +21,11 @@ class CoreTransport(unittest.TestCase):
  def test_invalid_transport_values_are_rejected(self):
   for body in [[],{'case_id':'999'},{'case_id':'0','answers':{'bonus_intent.kakao.auto_transfer':'yes'}},{'profile':{'monthly':True}},{'answers':{'contribution_preference':True}}]:
    with self.subTest(body=body),self.assertRaises(ValueError):core.execute(body)
+ def test_question_units_and_nested_liquid_questions(self):
+  profile=core.runtime()[5][0]['profile']
+  self.assertEqual(core.question_card('minor_children_count',profile)['unit'],'명')
+  self.assertEqual(core.question_card('age',profile)['unit'],'세')
+  response=core.execute({'case_id':'0','profile':{'goal_date':'2026-09-20','cash':4000000},'answers':{'age':None}})
+  self.assertEqual(response['result']['status'],'LIQUID_ONLY');self.assertIn('age',[q['id'] for q in response['questions']])
  def test_source_hash_preserved(self):self.assertEqual(core.runtime()[1].sha(),'15597888b0965ef565783957abea501d38130c0585ba3c86cd6355d86b954ef7')
 if __name__=='__main__':unittest.main()

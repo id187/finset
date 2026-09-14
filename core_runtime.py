@@ -151,7 +151,7 @@ def question_card(key, profile):
         r = next((r for r in rules if r['product_id'] == pid), None)
         card.update(type='costs', components=[{'id': b['id'], 'label': f'우대 조건 {i+1} · {b["rate"]:.2f}%p'} for i, b in enumerate(r['bonus'])] if r else [])
     elif key in numeric or key.startswith(('bank_balance.', 'product_balance.', 'incremental_cost.', 'held_count.', 'combined_monthly.')):
-        card.update(type='number', minimum=0, maximum=120 if key == 'age' else 1000000000, unit='세' if key == 'age' else '개' if key.startswith('held_count.') else '원')
+        card.update(type='number', minimum=0, maximum=120 if key == 'age' else 1000000000, unit='세' if key == 'age' else '명' if key == 'minor_children_count' else '개' if key.startswith('held_count.') else '원')
     elif key.endswith('_months') or key.endswith('_qualifying_months') or key == 'hana.auto_months_before_maturity':
         from datetime import date
         from calculator import month
