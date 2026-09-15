@@ -10,16 +10,17 @@
     "preview": "vite preview --host 127.0.0.1",
     "preview:pages": "vite preview --host 127.0.0.1 --mode pages",
     "test:model": "node --experimental-strip-types --test tests/model.test.mjs",
-    "test:pages": "node --experimental-strip-types --test tests/pages.test.mjs tests/guided.test.mjs tests/catalogue.test.mjs tests/interview.test.mjs tests/core-state.test.mjs tests/replay.test.mjs tests/basic-plan.test.mjs tests/refine-presentation.test.mjs",
+    "test:pages": "node --experimental-strip-types --test tests/pages.test.mjs tests/guided.test.mjs tests/catalogue.test.mjs tests/interview.test.mjs tests/core-state.test.mjs tests/replay.test.mjs tests/basic-plan.test.mjs tests/refine-presentation.test.mjs tests/debt-safety.test.mjs",
     "test:guided": "node --experimental-strip-types --test tests/guided.test.mjs",
     "test:ui": "node scripts/audit-mockup.cjs",
     "test:catalogue": "node --experimental-strip-types --test tests/catalogue.test.mjs",
-    "test:core-state": "node --experimental-strip-types --test tests/core-state.test.mjs tests/basic-plan.test.mjs tests/refine-presentation.test.mjs",
+    "test:core-state": "node --experimental-strip-types --test tests/core-state.test.mjs tests/basic-plan.test.mjs tests/refine-presentation.test.mjs tests/debt-safety.test.mjs",
     "test:v16": "node scripts/audit-v16.cjs",
     "test:browser": "node scripts/audit-browser-core.cjs",
     "test:browser-core": "node --test tests/browser-core.test.mjs",
-    "test:refine": "node --experimental-strip-types --test tests/refine-presentation.test.mjs",
-    "test:ui:refine": "node scripts/audit-refine.cjs"
+    "test:refine": "node --experimental-strip-types --test tests/refine-presentation.test.mjs tests/debt-safety.test.mjs",
+    "test:ui:refine": "node scripts/audit-refine.cjs",
+    "test:ui:logo": "node scripts/audit-logo.cjs"
   },
   "dependencies": {
     "@fontsource-variable/noto-sans-kr": "^5.2.0",

@@ -24,7 +24,7 @@ let browser;
   const input=page.locator('#core-monthly');await input.fill('');await input.pressSequentially(monthly,{delay:35});
   assert.equal(await input.inputValue(),monthly);assert.equal(await input.evaluate(e=>e===document.activeElement),true);
   if(monthly!=='0'){await radio(variable?'달마다 달라요':'매달 비슷해요');if(variable)await page.locator('#core-low').fill('20')}
-  await next();await radio('은행만 · 인터넷은행 포함');await radio('개인 생활·목표를 위한 돈');await radio('아니요');await next();
+  await next();await radio('은행만 · 인터넷은행 포함');await radio('개인 생활·목표를 위한 돈');await radio('아니요 · 상환 계획을 고려한 여유자금이에요');await next();
   await radio('없어요');await radio('네 · 쓸 돈은 빼고 입력했어요');await next();await page.locator('#core-age').fill('25');
   await page.getByRole('radiogroup',{name:'대한민국 국적인가요?'}).getByRole('radio',{name:'네',exact:true}).click();
   await page.getByRole('radiogroup',{name:'현재 한국에 살고 있나요?'}).getByRole('radio',{name:'네',exact:true}).click();

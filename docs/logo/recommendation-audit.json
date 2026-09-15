@@ -1,0 +1,97 @@
+{
+  "base": "http://127.0.0.1:4173/finset/",
+  "checks": [
+    "360px 결과 가로 넘침 없음",
+    "390px 결과 가로 넘침 없음",
+    "412px 결과 가로 넘침 없음",
+    "430px 결과 가로 넘침 없음",
+    "768px 결과 가로 넘침 없음",
+    "1280px 결과 가로 넘침 없음",
+    "긴 상품명 합성 텍스트 360px 줄바꿈",
+    "대표 1개·대안 2개 접힘, 정확한 차액, 원문 접근, 모든 너비 터치 영역 44px",
+    "자동이체 예/아니요/모름 실제 재계산; 미확인 우대 0, 로고 오류 대체",
+    "추가 혜택 명시 선택 후에만 질문, 거절 즉시 결과 복귀",
+    "금액 수정 시 직접 입력·목표·공통 답변 유지",
+    "1억원·5년 목표 원형 유지, 원금 1,800만원·필요 월 1,666,667원, 첫 만기와 목표일 분리",
+    "목돈만 추천",
+    "금액 연속 입력 포커스 유지; 가상 키보드 viewport 이벤트에서 하단 메뉴 숨김"
+  ],
+  "runs": [
+    {
+      "label": "manual",
+      "questions": [
+        "bonus_intent.auto_transfer"
+      ],
+      "status": "COMPARISON",
+      "top": [
+        "코드K 자유적금"
+      ],
+      "total": 3661181
+    },
+    {
+      "label": "auto-yes",
+      "questions": [],
+      "status": "COMPARISON",
+      "top": [
+        "카카오뱅크 자유적금"
+      ],
+      "total": 3663514
+    },
+    {
+      "label": "auto-unknown",
+      "questions": [],
+      "status": "COMPARISON",
+      "top": [
+        "코드K 자유적금"
+      ],
+      "total": 3661181
+    },
+    {
+      "label": "amount-edit",
+      "questions": [
+        "contribution_preference"
+      ],
+      "status": "COMPARISON",
+      "top": [
+        "카카오뱅크 자유적금"
+      ],
+      "total": 4514264
+    },
+    {
+      "label": "five-year-goal-gap",
+      "questions": [
+        "bonus_intent.auto_transfer",
+        "contribution_preference"
+      ],
+      "status": "ADJUST_GOAL",
+      "top": [
+        "주거래우대 자유적금"
+      ],
+      "total": 18478921
+    },
+    {
+      "label": "deposit-only",
+      "questions": [],
+      "status": "COMPARISON",
+      "top": [
+        "JB 다이렉트예금통장 (만기일시지급식)"
+      ],
+      "total": 5159048
+    },
+    {
+      "label": "variable-18-month",
+      "questions": [
+        "bonus_intent.auto_transfer"
+      ],
+      "status": "COMPARISON",
+      "top": [
+        "코드K 자유적금"
+      ],
+      "total": 3640787
+    }
+  ],
+  "errors": [],
+  "noAPI": true,
+  "existingLocalStoragePreserved": true,
+  "keyboardTest": "Simulated visualViewport resize; physical device not tested"
+}

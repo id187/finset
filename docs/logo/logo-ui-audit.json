@@ -1,0 +1,31 @@
+{
+  "base": "http://127.0.0.1:4173/finset/",
+  "checks": [
+    "412px 메인 첫 접속·새로고침 모션, 2.4초 자동 종료, 로고 재클릭 중복 없음",
+    "412px 직접 추천 진입은 모션 생략, 첫 로고 클릭만 재생, Escape 종료",
+    "1280px 메인 첫 접속·새로고침 모션, 2.4초 자동 종료, 로고 재클릭 중복 없음",
+    "1280px 직접 추천 진입은 모션 생략, 첫 로고 클릭만 재생, Escape 종료",
+    "모션 감소 시 생략; 재생 중 모션 감소 설정 변경 시 즉시 종료",
+    "필수 비교 범위 누락은 오류 표시; 상환 안내 진입 시 추천 요청 없음; 대출 답변·금액 복귀 유지; 사용자 답변 수정 후 다음 단계 진행; 사업자금 차단 유지; 실제 홈 이동"
+  ],
+  "timings": [
+    {
+      "label": "412 first visit",
+      "durationMs": 2406
+    },
+    {
+      "label": "412 reload",
+      "durationMs": 2406
+    },
+    {
+      "label": "1280 first visit",
+      "durationMs": 2402
+    },
+    {
+      "label": "1280 reload",
+      "durationMs": 2402
+    }
+  ],
+  "errors": [],
+  "existingStoragePreserved": true
+}
