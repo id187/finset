@@ -9,7 +9,7 @@ if (manifest.version !== vendor.version) throw Error('Browser core version is st
 for (const [file, expected] of Object.entries(vendor.files)) {
   if (manifest.files['core_vendor/' + file] !== expected) throw Error(`Browser vendor mismatch: ${file}`);
 }
-for (const file of ['core_runtime.py', 'browser_entry.py', 'browser_source.py', 'public/demo/inventory.json', 'core_vendor/manifest.json']) {
+for (const file of ['core_runtime.py', 'recommendation_policy.py', 'policy_questions.py', 'browser_entry.py', 'browser_source.py', 'public/demo/inventory.json', 'core_vendor/manifest.json']) {
   const bytes = file.startsWith('core_vendor/') ? read(file) : Buffer.from(read(file).toString('utf8').replaceAll('\r\n', '\n'));
   if (sha(bytes) !== manifest.files[file]) throw Error(`Browser package needs re-export: ${file}`);
 }

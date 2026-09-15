@@ -1,7 +1,7 @@
 import { addMonths } from './model.ts'
 import type { CoreProfile } from './coreApi'
 
-export type BasicPlan = { purpose: string; goal: string; start: string; date: string; cash: string; monthly: string; income: string; low: string; sector: string; fund: string; debt: string; holdings: string; withdraw: string; age: string; citizen: string; resident: string }
+export type BasicPlan = { purpose: string; customPurpose?: string; goal: string; start: string; date: string; cash: string; monthly: string; income: string; low: string; sector: string; fund: string; debt: string; holdings: string; withdraw: string; age: string; citizen: string; resident: string }
 export const basicStages = ['목표와 기간', '저축할 금액', '비교할 범위', '보유 상품과 유지 확인', '가입 조건']
 export const freshBasicPlan = (): BasicPlan => ({ purpose: '', goal: '', start: new Date().toLocaleDateString('sv-SE'), date: '', cash: '', monthly: '', income: '', low: '', sector: '', fund: '', debt: '', holdings: '', withdraw: '', age: '', citizen: '', resident: '' })
 export const validWon = (v: string) => /^\d+$/.test(v) && Number.isSafeInteger(Number(v)) && Number(v) <= 1000000000
@@ -25,9 +25,9 @@ export function validateBasic(step: number, f: BasicPlan) {
   return basicStop(step, f)
 }
 export function basicProfile(f: BasicPlan, holdings: CoreProfile): CoreProfile {
-  return { start_date: f.start, goal_date: f.date, goal_amount: Number(f.goal), budget_basis: 'available_after_expenses', available_now: Number(f.cash), available_amounts_confirmed: true,
+  return { goal_name: f.purpose === '직접 정하기' ? f.customPurpose?.trim() || '내 목표' : f.purpose && f.purpose !== '아직 정하지 않았어요' ? f.purpose : '내 목표', start_date: f.start, goal_date: f.date, goal_amount: Number(f.goal), budget_basis: 'available_after_expenses', available_now: Number(f.cash), available_amounts_confirmed: true,
     monthly: Number(f.monthly), income_pattern: Number(f.monthly) === 0 ? 'none' : f.income, low_month_capacity: Number(f.monthly) > 0 && f.income === 'variable' ? Number(f.low) : null,
-    sectors: f.sector === 'bank' ? ['bank'] : ['bank', 'savings_bank'], fund_type: f.fund, high_interest_debt: f.debt === 'yes', withdrawal_need: f.withdraw,
+    sectors: f.sector === 'bank' ? ['bank'] : ['bank', 'savings_bank', 'credit_union'], fund_type: f.fund, high_interest_debt: f.debt === 'yes', withdrawal_need: f.withdraw,
     deadline_flexibility: 'fixed', latest_goal_date: null, ...holdings,
     facts: { ...(holdings.facts as Record<string, unknown> || {}), age: Number(f.age), nationality: f.citizen === 'yes' ? 'KR' : 'other', residency: f.resident === 'yes' ? 'KR' : 'other', 'kakao.renewed_principal': false } }
 }

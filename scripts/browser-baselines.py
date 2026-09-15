@@ -22,8 +22,9 @@ for name, patch, answers in [
     ('variable-60-month', {'goal_date':'2031-09-15','income_pattern':'variable','low_month_capacity':190000}, {}),
     ('18-month', {'goal_date':'2028-03-15'}, {}),
     ('short-liquid-term', {'goal_date':'2026-09-23','available_now':4000000}, {'age':None}),
-    ('unknown-bonus', {}, {'bonus_intent.kakao.auto_transfer':None}),
-    ('declined-bonus', {}, {'bonus_intent.kakao.auto_transfer':False}),
+    ('unknown-bonus', {}, {'bonus_intent.auto_transfer':None,'contribution_preference':'fixed_ok'}),
+    ('declined-bonus', {}, {'bonus_intent.auto_transfer':False,'contribution_preference':'fixed_ok'}),
+    ('accepted-bonus', {}, {'bonus_intent.auto_transfer':True,'contribution_preference':'fixed_ok'}),
     ('compare-not-consent', {}, {'contribution_preference':'compare'}),
     ('no-budget', {'monthly':0}, {}),
 ]:

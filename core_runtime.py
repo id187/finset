@@ -11,6 +11,8 @@ import subprocess
 import sys
 from functools import lru_cache
 from pathlib import Path
+import recommendation_policy
+import policy_questions
 
 ROOT = Path(__file__).resolve().parent
 VENDOR = ROOT / 'core_vendor'
@@ -21,7 +23,7 @@ TOP = {'start_date', 'goal_date', 'goal_amount', 'cash', 'reserve', 'monthly', '
        'fund_type', 'withdrawal_need', 'early_access_strategy', 'early_access_amount', 'reserve_confirmed',
        'holdings_complete', 'bank_balances_complete', 'sectors', 'channels', 'high_interest_debt',
        'deadline_flexibility', 'latest_goal_date', 'contribution_preference', 'bank_policy', 'existing_bank_ids',
-       'budget_basis', 'available_now', 'available_amounts_confirmed'}
+       'budget_basis', 'available_now', 'available_amounts_confirmed', 'goal_name', 'benefit_action'}
 STRUCTURED = {'planned_spending', 'bank_balances', 'held_product_ids', 'product_balances', 'facts'}
 CHOICES = {
     'income_pattern': [('steady', '예, 매달 비슷해요'), ('variable', '아니오, 달마다 달라요'), ('none', '정기 수입은 없어요')],
@@ -203,7 +205,34 @@ def explain_condition(expr):
     return f'{label}: {requirement}{suffix}'
 
 
+def short_action(rule, component):
+    key = component['id']
+    if key == 'auto_transfer':
+        threshold = next((v for k, op, v in leaves(component['when']) if 'months' in k and op == 'gte'), None)
+        if rule['name'] == '카카오뱅크 자유적금':
+            return f"계약 {rule['term']}개월 중 {threshold}개월 이상 자동이체하고 만기까지 유지해요. 자동연장 원리금은 제외돼요."
+        if rule['name'] == '내맘적금':
+            return f'본인 명의 하나은행 통장에서 {threshold}개월 이상 자동이체해요.'
+        return '가입할 때 설정한 월 자동이체를 모든 회차 유지해요.'
+    descriptions = {
+        'kn_auto_transfer': '매달 자동이체로 적금을 납입해요.',
+        'kn_no_saving_6m': '신규 가입일 전 6개월 동안 경남은행 적금을 보유하지 않은 조건이에요.',
+        'kn_marketing_before_join': '경남은행 마케팅 안내 수신에 가입 전에 동의해요.',
+        'jb_own_account_auto_6_times': '본인 명의 전북은행 계좌에서 자동이체로 6회 이상 납입해요.',
+        'jb_all_payments_own_auto': '모든 납입액을 본인 명의 전북은행 계좌에서 자동이체해요.',
+        'online': '앱·웹으로 가입하는 조건을 반영했어요.',
+        'kj_same_day_deposit_5m_12m_keep': '같은 날 가입한 500만원 이상 예금을 1년 이상, 적금 만기 전일까지 유지해요.',
+    }
+    return descriptions.get(key, explain_condition(component['when']))
+
+
 def apply_answer(profile, key, value):
+    if key.startswith('component_cost.'):
+        pid, sep, component = key.removeprefix('component_cost.').partition('|')
+        if not sep or not pid or not component or value is not None and type(value) is not int:
+            raise ValueError('추가비용 답변을 확인해 주세요.')
+        profile.setdefault('bonus_costs', {}).setdefault(pid, {})[component] = value
+        return
     if key in TOP:
         if value is None and key in {'reserve_confirmed', 'holdings_complete', 'bank_balances_complete', 'high_interest_debt'}:
             profile.pop(key, None)
@@ -240,13 +269,13 @@ def normalize_budget(profile):
     return p
 
 
-def execute(request):
+def execute(request, *, original_policy=False):
     if not isinstance(request, dict):
         raise ValueError('요청 형식을 확인해 주세요.')
     engine, source, questions, _, rules, cases, inventory = runtime()
     if request.get('action') == 'metadata':
         eligible = [r for r in rules if set(r['channels']) & {'web', 'mobile'}]
-        return {'version': VERSION, 'snapshot': '2026년 8월', 'source_sha256': source.sha(),
+        return {'version': VERSION, 'policy_version': recommendation_policy.VERSION, 'snapshot': '2026년 8월', 'source_sha256': source.sha(),
                 'connected_products': len({r['product_id'] for r in eligible}),
                 'help': questions.HELP,
                 'banks': list({r['bank_id']: {'id': r['bank_id'], 'name': r['institution']} for r in rules}.values()),
@@ -304,15 +333,35 @@ def execute(request):
             raise ValueError('우대 행동은 예·아니오·미확인으로 답해 주세요.')
     if profile.get('contribution_preference') not in (None, 'fixed_ok', 'adjustable', 'compare'):
         raise ValueError('납입 방식 답변을 확인해 주세요.')
+    for key, limit in [('goal_name', 40), ('benefit_action', 250)]:
+        if profile.get(key) is not None and (not isinstance(profile[key], str) or len(profile[key]) > limit):
+            raise ValueError('목표명과 선택한 혜택을 확인해 주세요.')
+    for key, value in facts.items():
+        if value is None: continue
+        if key in ('auto.setup_at_join', 'jb.own_account', 'kbank.transfer_whole_term') or key.startswith('existing_transaction.'):
+            if type(value) is not bool: raise ValueError('선택한 행동을 확인해 주세요.')
+        if key == 'salary.monthly_amount' or key.startswith('existing_monthly.'):
+            if type(value) is not int or not 0 <= value <= 1000000000: raise ValueError('입금액을 원 단위로 확인해 주세요.')
+        if key == 'salary.sender' and value not in ('self', 'other'): raise ValueError('입금 주체를 확인해 주세요.')
     for key in ('reserve_confirmed', 'holdings_complete', 'bank_balances_complete', 'high_interest_debt'):
         if profile.get(key) is not None and type(profile[key]) is not bool:
             raise ValueError('확인 답변의 형식을 확인해 주세요.')
     profile = normalize_budget(profile)
-    result = engine.recommend(profile, rules)
+    result = engine.recommend(profile, rules) if original_policy else recommendation_policy.recommend(profile, rules, engine)
+    if not original_policy:
+        for option in result.get('benefit_options', []):
+            option['missing'] = policy_questions.optional_keys(option['missing'], profile)
+        result['benefit_options'] = [b for b in result.get('benefit_options', []) if b['missing']]
+        if result.get('optional_questions'):
+            result['questions'] = policy_questions.optional_keys(result.get('questions', []), profile)
     keys = list(dict.fromkeys(result.get('questions', []) + result.get('remaining_questions', []) + result.get('planning_questions', []) + result.get('liquid_comparison', {}).get('questions', [])))
     cards = [question_card(key, profile) for key in keys[:100]]
+    if not original_policy:
+        cards = [policy_questions.decorate(card, profile, result) for card in cards]
     review = []
-    if request.get('case_id') is not None:
+    if not original_policy and profile.get('monthly', 0) > 0 and 'auto_transfer' in profile.get('bonus_intents', {}):
+        review.append(policy_questions.decorate(question_card('bonus_intent.auto_transfer', profile), profile, result))
+    if original_policy and request.get('case_id') is not None:
         if 'kakao.auto_transfer' in profile.get('bonus_intents', {}):
             review.append(question_card('bonus_intent.kakao.auto_transfer', profile))
         if 'contribution_preference' in keys or str(request['case_id']) in ('11', '12', '13'):
@@ -335,7 +384,7 @@ def execute(request):
             r = by_option[product['option_id']]
             details[str(product['option_id'])] = {'source_text': inv.get('bonus', ''), 'eligibility_text': inv.get('eligibility', ''),
                 'notes': inv.get('notes', ''), 'minimum': r['minimum'], 'maximum': r.get('maximum'), 'flexible': r['flexible'],
-                'required_actions': [{'title': f'선택한 우대 조건 {i+1} · {b["rate"]:.2f}%p', 'description': explain_condition(b['when'])} for i, b in enumerate(r['bonus']) if b['id'] in product.get('bonus_earned', [])],
+                'required_actions': [{'title': (f'선택한 우대 조건 {i+1}' if original_policy else recommendation_policy.BENEFIT_NAMES.get(b['id'], '확인한 우대')) + f' · {b["rate"]:.2f}%p', 'description': explain_condition(b['when']) if original_policy else short_action(r, b)} for i, b in enumerate(r['bonus']) if b['id'] in product.get('bonus_earned', [])],
                 'bonus_terms': [{'name': b['id'], 'rate': b['rate']} for b in r['bonus']]}
     return {'version': VERSION, 'result': result, 'questions': cards, 'details': details, 'review_questions': review, 'answer_values': answer_values,
             'profile': profile_summary(profile), 'demo': request.get('case_id') is not None,

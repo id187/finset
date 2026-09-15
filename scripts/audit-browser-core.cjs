@@ -1,6 +1,7 @@
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'C:/Users/ljm/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const {observe}=require('./browser-observer.cjs');
+const {digest}=require('./response-digest.cjs');
 const base=process.env.FINSET_URL||'http://127.0.0.1:4173/finset/';
 let browser;
 (async()=>{
@@ -27,14 +28,14 @@ let browser;
    const answer=await page.evaluate(id=>window.__coreMessages.find(m=>m.id===id),key);
    timings.push(Date.now()-start);return answer;
  }
- const replay=JSON.parse(fs.readFileSync('public/demo/mvp2.json','utf8'));
+ const replay=JSON.parse(fs.readFileSync('tests/fixtures/refine-responses.json','utf8'));
  let count=0;
- for(const [key,expected] of Object.entries(replay.snapshots)){
+ for(const [key,expected] of Object.entries(replay.sha256)){
    const [case_id,preference,intent]=key.split('|'),answers={};
    if(preference!=='default')answers.contribution_preference=JSON.parse(preference);
    if(intent!=='default')answers['bonus_intent.kakao.auto_transfer']=JSON.parse(intent);
    const actual=await calculate({case_id,answers});
-   assert.equal(actual.ok,true,key);assert.deepEqual(actual.data,expected,key);
+   assert.equal(actual.ok,true,key);assert.equal(digest(actual.data),expected,key);
    if(++count%40===0)console.log(`Full-response parity: ${count}/280`);
  }
  const baselines=JSON.parse(fs.readFileSync('tests/fixtures/browser-core.json','utf8'));

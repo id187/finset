@@ -1,0 +1,7 @@
+{
+  "provenance": "Unmodified assets supplied in mvp/refine.zip, assets/0.png and assets/1.ico. All other institutions use plain-text abbreviations.",
+  "assets": [
+    {"file": "kakao.png", "institution": "카카오뱅크", "source": "https://www.kakaobank.com/view/images/favicon/favicon-bl.png"},
+    {"file": "kbank.ico", "institution": "케이뱅크", "source": "https://cdnisb.kbanknow.com/resource/images/web/favicon/favicon.ico"}
+  ]
+}

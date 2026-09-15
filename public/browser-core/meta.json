@@ -1,5 +1,6 @@
 {
   "version": "2026-09-13-consistency-1",
+  "policy_version": "refine-2026-09-15-v1",
   "snapshot": "2026년 8월",
   "source_sha256": "15597888b0965ef565783957abea501d38130c0585ba3c86cd6355d86b954ef7",
   "connected_products": 3644,

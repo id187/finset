@@ -44,7 +44,7 @@ def main():
     }
     # These repository-owned text files use LF in Git/CI. Vendor bytes below
     # remain untouched, including their original line endings.
-    files = {name: (ROOT / name).read_bytes().replace(b'\r\n', b'\n') for name in ['core_runtime.py', 'browser_entry.py', 'browser_source.py', 'public/demo/inventory.json']}
+    files = {name: (ROOT / name).read_bytes().replace(b'\r\n', b'\n') for name in ['core_runtime.py', 'recommendation_policy.py', 'policy_questions.py', 'browser_entry.py', 'browser_source.py', 'public/demo/inventory.json']}
     manifest = json.loads((ROOT / 'core_vendor/manifest.json').read_text(encoding='utf-8'))
     files['core_vendor/manifest.json'] = (ROOT / 'core_vendor/manifest.json').read_bytes()
     for name in manifest['files']:

@@ -1,0 +1,1641 @@
+{
+  "policy_version": "refine-2026-09-15-v1",
+  "scope": "Original candidate formulas; independent exhaustive combinations and ordering. Bank scope, adult Korean resident, 48 input combinations; not a claim about every real-world product.",
+  "cases": 48,
+  "failures": [],
+  "source_sha256": "15597888b0965ef565783957abea501d38130c0585ba3c86cd6355d86b954ef7",
+  "rows": [
+    {
+      "months": 6,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 5,
+      "expected": [
+        [
+          26383
+        ],
+        [
+          26412
+        ],
+        [
+          26372
+        ]
+      ],
+      "actual": [
+        [
+          26383
+        ],
+        [
+          26412
+        ],
+        [
+          26372
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 5,
+      "expected": [
+        [
+          26383
+        ],
+        [
+          26412
+        ],
+        [
+          26372
+        ]
+      ],
+      "actual": [
+        [
+          26383
+        ],
+        [
+          26412
+        ],
+        [
+          26372
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 4,
+      "expected": [
+        [
+          26383
+        ],
+        [
+          26412
+        ],
+        [
+          26372
+        ]
+      ],
+      "actual": [
+        [
+          26383
+        ],
+        [
+          26412
+        ],
+        [
+          26372
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 4,
+      "expected": [
+        [
+          26383
+        ],
+        [
+          26412
+        ],
+        [
+          26372
+        ]
+      ],
+      "actual": [
+        [
+          26383
+        ],
+        [
+          26412
+        ],
+        [
+          26372
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 23,
+      "expected": [
+        [
+          5173
+        ],
+        [
+          5298
+        ],
+        [
+          5356
+        ]
+      ],
+      "actual": [
+        [
+          5173
+        ],
+        [
+          5298
+        ],
+        [
+          5356
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 23,
+      "expected": [
+        [
+          5173
+        ],
+        [
+          5298
+        ],
+        [
+          5356
+        ]
+      ],
+      "actual": [
+        [
+          5173
+        ],
+        [
+          5298
+        ],
+        [
+          5356
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 23,
+      "expected": [
+        [
+          5173
+        ],
+        [
+          5298
+        ],
+        [
+          5356
+        ]
+      ],
+      "actual": [
+        [
+          5173
+        ],
+        [
+          5298
+        ],
+        [
+          5356
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 23,
+      "expected": [
+        [
+          5173
+        ],
+        [
+          5298
+        ],
+        [
+          5356
+        ]
+      ],
+      "actual": [
+        [
+          5173
+        ],
+        [
+          5298
+        ],
+        [
+          5356
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 115,
+      "expected": [
+        [
+          5173,
+          26383
+        ],
+        [
+          5173,
+          26412
+        ],
+        [
+          5298,
+          26383
+        ]
+      ],
+      "actual": [
+        [
+          5173,
+          26383
+        ],
+        [
+          5173,
+          26412
+        ],
+        [
+          5298,
+          26383
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 115,
+      "expected": [
+        [
+          5173,
+          26383
+        ],
+        [
+          5173,
+          26412
+        ],
+        [
+          5298,
+          26383
+        ]
+      ],
+      "actual": [
+        [
+          5173,
+          26383
+        ],
+        [
+          5173,
+          26412
+        ],
+        [
+          5298,
+          26383
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 92,
+      "expected": [
+        [
+          5173,
+          26383
+        ],
+        [
+          5173,
+          26412
+        ],
+        [
+          5298,
+          26383
+        ]
+      ],
+      "actual": [
+        [
+          5173,
+          26383
+        ],
+        [
+          5173,
+          26412
+        ],
+        [
+          5298,
+          26383
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 6,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 92,
+      "expected": [
+        [
+          5173,
+          26383
+        ],
+        [
+          5173,
+          26412
+        ],
+        [
+          5298,
+          26383
+        ]
+      ],
+      "actual": [
+        [
+          5173,
+          26383
+        ],
+        [
+          5173,
+          26412
+        ],
+        [
+          5298,
+          26383
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 16,
+      "expected": [
+        [
+          30437
+        ],
+        [
+          29996
+        ],
+        [
+          29433
+        ]
+      ],
+      "actual": [
+        [
+          30437
+        ],
+        [
+          29996
+        ],
+        [
+          29433
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 16,
+      "expected": [
+        [
+          29996
+        ],
+        [
+          30437
+        ],
+        [
+          29433
+        ]
+      ],
+      "actual": [
+        [
+          29996
+        ],
+        [
+          30437
+        ],
+        [
+          29433
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 11,
+      "expected": [
+        [
+          30437
+        ],
+        [
+          29996
+        ],
+        [
+          29433
+        ]
+      ],
+      "actual": [
+        [
+          30437
+        ],
+        [
+          29996
+        ],
+        [
+          29433
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 11,
+      "expected": [
+        [
+          29996
+        ],
+        [
+          30437
+        ],
+        [
+          29433
+        ]
+      ],
+      "actual": [
+        [
+          29996
+        ],
+        [
+          30437
+        ],
+        [
+          29433
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 32,
+      "expected": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "actual": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 32,
+      "expected": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "actual": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 32,
+      "expected": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "actual": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 32,
+      "expected": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "actual": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 512,
+      "expected": [
+        [
+          10289,
+          30437
+        ],
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          30437
+        ]
+      ],
+      "actual": [
+        [
+          10289,
+          30437
+        ],
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          30437
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 512,
+      "expected": [
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          29996
+        ],
+        [
+          10289,
+          30437
+        ]
+      ],
+      "actual": [
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          29996
+        ],
+        [
+          10289,
+          30437
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 352,
+      "expected": [
+        [
+          10289,
+          30437
+        ],
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          30437
+        ]
+      ],
+      "actual": [
+        [
+          10289,
+          30437
+        ],
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          30437
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 12,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 352,
+      "expected": [
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          29996
+        ],
+        [
+          10289,
+          30437
+        ]
+      ],
+      "actual": [
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          29996
+        ],
+        [
+          10289,
+          30437
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 16,
+      "expected": [
+        [
+          30437
+        ],
+        [
+          29996
+        ],
+        [
+          29433
+        ]
+      ],
+      "actual": [
+        [
+          30437
+        ],
+        [
+          29996
+        ],
+        [
+          29433
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 16,
+      "expected": [
+        [
+          29996
+        ],
+        [
+          30437
+        ],
+        [
+          29433
+        ]
+      ],
+      "actual": [
+        [
+          29996
+        ],
+        [
+          30437
+        ],
+        [
+          29433
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 11,
+      "expected": [
+        [
+          30437
+        ],
+        [
+          29996
+        ],
+        [
+          29433
+        ]
+      ],
+      "actual": [
+        [
+          30437
+        ],
+        [
+          29996
+        ],
+        [
+          29433
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 11,
+      "expected": [
+        [
+          29996
+        ],
+        [
+          30437
+        ],
+        [
+          29433
+        ]
+      ],
+      "actual": [
+        [
+          29996
+        ],
+        [
+          30437
+        ],
+        [
+          29433
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 32,
+      "expected": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "actual": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 32,
+      "expected": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "actual": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 32,
+      "expected": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "actual": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 32,
+      "expected": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "actual": [
+        [
+          10289
+        ],
+        [
+          10408
+        ],
+        [
+          11054
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 512,
+      "expected": [
+        [
+          10289,
+          30437
+        ],
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          30437
+        ]
+      ],
+      "actual": [
+        [
+          10289,
+          30437
+        ],
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          30437
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 512,
+      "expected": [
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          29996
+        ],
+        [
+          10289,
+          30437
+        ]
+      ],
+      "actual": [
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          29996
+        ],
+        [
+          10289,
+          30437
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 352,
+      "expected": [
+        [
+          10289,
+          30437
+        ],
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          30437
+        ]
+      ],
+      "actual": [
+        [
+          10289,
+          30437
+        ],
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          30437
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 18,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 352,
+      "expected": [
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          29996
+        ],
+        [
+          10289,
+          30437
+        ]
+      ],
+      "actual": [
+        [
+          10289,
+          29996
+        ],
+        [
+          10408,
+          29996
+        ],
+        [
+          10289,
+          30437
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 60,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 34,
+      "expected": [
+        [
+          40143
+        ],
+        [
+          40044
+        ],
+        [
+          41333
+        ]
+      ],
+      "actual": [
+        [
+          40143
+        ],
+        [
+          40044
+        ],
+        [
+          41333
+        ]
+      ],
+      "match": true,
+      "status": "COMPARISON"
+    },
+    {
+      "months": 60,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 34,
+      "expected": [
+        [
+          40143
+        ],
+        [
+          40044
+        ],
+        [
+          41333
+        ]
+      ],
+      "actual": [
+        [
+          40143
+        ],
+        [
+          40044
+        ],
+        [
+          41333
+        ]
+      ],
+      "match": true,
+      "status": "COMPARISON"
+    },
+    {
+      "months": 60,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 23,
+      "expected": [
+        [
+          40143
+        ],
+        [
+          40044
+        ],
+        [
+          41578
+        ]
+      ],
+      "actual": [
+        [
+          40143
+        ],
+        [
+          40044
+        ],
+        [
+          41578
+        ]
+      ],
+      "match": true,
+      "status": "COMPARISON"
+    },
+    {
+      "months": 60,
+      "cash": 0,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 23,
+      "expected": [
+        [
+          40143
+        ],
+        [
+          40044
+        ],
+        [
+          41585
+        ]
+      ],
+      "actual": [
+        [
+          40143
+        ],
+        [
+          40044
+        ],
+        [
+          41585
+        ]
+      ],
+      "match": true,
+      "status": "COMPARISON"
+    },
+    {
+      "months": 60,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 44,
+      "expected": [
+        [
+          21094
+        ],
+        [
+          21150
+        ],
+        [
+          21393
+        ]
+      ],
+      "actual": [
+        [
+          21094
+        ],
+        [
+          21150
+        ],
+        [
+          21393
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 60,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 44,
+      "expected": [
+        [
+          21094
+        ],
+        [
+          21150
+        ],
+        [
+          21393
+        ]
+      ],
+      "actual": [
+        [
+          21094
+        ],
+        [
+          21150
+        ],
+        [
+          21393
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 60,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 44,
+      "expected": [
+        [
+          21094
+        ],
+        [
+          21150
+        ],
+        [
+          21393
+        ]
+      ],
+      "actual": [
+        [
+          21094
+        ],
+        [
+          21150
+        ],
+        [
+          21393
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 60,
+      "cash": 5000000,
+      "monthly": 0,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 44,
+      "expected": [
+        [
+          21094
+        ],
+        [
+          21150
+        ],
+        [
+          21393
+        ]
+      ],
+      "actual": [
+        [
+          21094
+        ],
+        [
+          21150
+        ],
+        [
+          21393
+        ]
+      ],
+      "match": true,
+      "status": "ADJUST_GOAL"
+    },
+    {
+      "months": 60,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": false,
+      "enumerated": 1496,
+      "expected": [
+        [
+          21094,
+          40143
+        ],
+        [
+          21094,
+          40044
+        ],
+        [
+          21150,
+          40143
+        ]
+      ],
+      "actual": [
+        [
+          21094,
+          40143
+        ],
+        [
+          21094,
+          40044
+        ],
+        [
+          21150,
+          40143
+        ]
+      ],
+      "match": true,
+      "status": "COMPARISON"
+    },
+    {
+      "months": 60,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "fixed_ok",
+      "auto": true,
+      "enumerated": 1496,
+      "expected": [
+        [
+          21094,
+          40143
+        ],
+        [
+          21094,
+          40044
+        ],
+        [
+          21150,
+          40143
+        ]
+      ],
+      "actual": [
+        [
+          21094,
+          40143
+        ],
+        [
+          21094,
+          40044
+        ],
+        [
+          21150,
+          40143
+        ]
+      ],
+      "match": true,
+      "status": "COMPARISON"
+    },
+    {
+      "months": 60,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": false,
+      "enumerated": 1012,
+      "expected": [
+        [
+          21094,
+          40143
+        ],
+        [
+          21094,
+          40044
+        ],
+        [
+          21150,
+          40143
+        ]
+      ],
+      "actual": [
+        [
+          21094,
+          40143
+        ],
+        [
+          21094,
+          40044
+        ],
+        [
+          21150,
+          40143
+        ]
+      ],
+      "match": true,
+      "status": "COMPARISON"
+    },
+    {
+      "months": 60,
+      "cash": 3000000,
+      "monthly": 300000,
+      "preference": "adjustable",
+      "auto": true,
+      "enumerated": 1012,
+      "expected": [
+        [
+          21094,
+          40143
+        ],
+        [
+          21094,
+          40044
+        ],
+        [
+          21150,
+          40143
+        ]
+      ],
+      "actual": [
+        [
+          21094,
+          40143
+        ],
+        [
+          21094,
+          40044
+        ],
+        [
+          21150,
+          40143
+        ]
+      ],
+      "match": true,
+      "status": "COMPARISON"
+    }
+  ]
+}

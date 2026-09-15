@@ -15,14 +15,14 @@
       "detail_status"
     ]
   },
-  "package_sha256": "900546b4d65c8e334f0dbb6c508bc8f3531bac8ed50b1a59b6068cf6587857bb",
-  "metadata_sha256": "372c7d58f77457fb3f00decced30e4bd09d02cf4ff2ca7b2292f9e80f6fb1876",
+  "package_sha256": "7aaeee959d476f061325966abd67525a3621c2983f2133999b6f517d82abac47",
+  "metadata_sha256": "c58c4a195e3b8b315a05e0dc37960547a9db2dffdc7b09fc02354594891d2742",
   "files": {
     "browser_data/inventory.sqlite3": "df3547946b13ba85e77bf54e5a74a7bcd164d5068d03bcc79817b87854f3ff84",
     "browser_data/source.json": "9636fbaa0b29c28db490c4c821d02fc46191ab198a5e503f5eb5b029f696d08c",
     "browser_entry.py": "0d8b35d37462cf4daf6ecf0f5ff534fac5246e3f5d68596841f002c0850ae696",
     "browser_source.py": "29ac712aa192101e78caedc1bbcedd1f72962624dc417ec2eea798dd59e70174",
-    "core_runtime.py": "84a42613b48b58665bc5e324db80cca8cf4a53a9a364e90787ada261819946c8",
+    "core_runtime.py": "cb3c57e729fbc33901a2a742645fb879f6e63a2bc3540210073cc68fb1ad05e1",
     "core_vendor/finset_recommendation/README.md": "a33c6634c2d979e1cd842c8a24d72f7ffe12e687634ffa7ddb08e95e6a25445c",
     "core_vendor/finset_recommendation/bonus_intent.py": "d332245574bf13e9004b9995c71f6079630fcf3a6eab9875493f542036518e3a",
     "core_vendor/finset_recommendation/calculator.py": "fcb08c16c3b971ef5ad4c1ae1d7b6467a71a7cc693ae0ecf42f626a89dc23a91",
@@ -40,11 +40,13 @@
     "core_vendor/fixtures/cases.json": "2a8573cd96f2fa678440e8962d322b6357e0817c8ea34d6554fcf65e922d9b83",
     "core_vendor/manifest.json": "6e5866d4455b5b8f92b0161e812e4953c15b7c92b5a3b21bd5e401c89e5c6d6e",
     "core_vendor/verify.py": "e05ba11d7e5579229eaef9cac7f00a4757f452d28111a2bf7c6083d7d615db5f",
-    "public/demo/inventory.json": "0ca87c80a6e22d003fe86a0f6cd79863361e1d094eed810ca436bfe4767213dc"
+    "policy_questions.py": "163acac36df05da7538f12f9601349baa1635dfd712683b57d750677ce8cd9f8",
+    "public/demo/inventory.json": "0ca87c80a6e22d003fe86a0f6cd79863361e1d094eed810ca436bfe4767213dc",
+    "recommendation_policy.py": "882732c1c419705717ed24cc4dcbd1ed6c75aedbd31eb93dcc1b4425bca5e36b"
   },
   "sizes": {
     "original_db": 131260416,
     "snapshot_db": 1703936,
-    "package": 2810556
+    "package": 2819607
   }
 }

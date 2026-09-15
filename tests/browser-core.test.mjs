@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { loadPyodide } from 'pyodide';
+import digests from '../scripts/response-digest.cjs';
 
 const root = new URL('../', import.meta.url);
 const read = file => readFileSync(new URL(file, root));
@@ -18,12 +19,14 @@ function calculate(input) {
   finally { python.globals.delete('_request_json'); }
 }
 test('Packaged WebAssembly Python matches all 280 full native responses', () => {
-  const replay = JSON.parse(read('public/demo/mvp2.json'));
-  for (const [key, expected] of Object.entries(replay.snapshots)) {
+  const replay = JSON.parse(read('tests/fixtures/refine-responses.json'));
+  for (const [key, expected] of Object.entries(replay.sha256)) {
     const [case_id, preference, intent] = key.split('|'), answers = {};
     if (preference !== 'default') answers.contribution_preference = JSON.parse(preference);
     if (intent !== 'default') answers['bonus_intent.kakao.auto_transfer'] = JSON.parse(intent);
-    assert.deepEqual(calculate({ case_id, answers }), { ok: true, data: expected }, key);
+    const actual = calculate({ case_id, answers });
+    assert.equal(actual.ok, true, key);
+    assert.equal(digests.digest(actual.data), expected, key);
   }
 });
 test('Arbitrary amounts, terms, unknowns and invalid inputs match native Python', () => {

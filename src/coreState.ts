@@ -10,6 +10,7 @@ const relatedIntent: Record<string, string> = {
   'kn_auto_transfer': 'kn.auto_transfer', 'kn_new_card_next_month_100k': 'kn.card', 'kn_marketing_before_join': 'kn.marketing',
   'jb_own_account_auto_6_times': 'jb.auto_transfer', 'jb_all_payments_own_auto': 'jb.auto_transfer',
   'kj_same_day_deposit_5m_12m_keep': 'kj.additional_deposit',
+  'salary.monthly_amount': 'kbank.transfer', 'salary.sender': 'kbank.transfer', 'kbank.transfer_whole_term': 'kbank.transfer',
 }
 export const sameAnswer = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
 export function changeCoreAnswer(request: CoreRequest, key: string, value: AnswerValue) {
@@ -28,7 +29,7 @@ export function changeCorePlan(request: CoreRequest, patch: Record<string, unkno
   const changedPlan = changedDate || ['monthly', 'cash', 'reserve', 'available_now', 'low_month_capacity'].some(k => k in patch && !sameAnswer(patch[k], current[k]))
   if (changedPlan) {
     for (const action of new Set(Object.values(relatedIntent))) { answers[`bonus_intent.${action}`] = null; invalidated.push(`bonus_intent.${action}`) }
-    for (const key of Object.keys(answers)) if (key.startsWith('bonus_intent.')) { answers[key] = null; invalidated.push(key) }
+    for (const key of Object.keys(answers)) if (key.startsWith('bonus_intent.') && !['bonus_intent.auto_transfer', 'bonus_intent.extra_transactions'].includes(key)) { answers[key] = null; invalidated.push(key) }
     answers.contribution_preference = null; invalidated.push('contribution_preference')
     if (changedDate) for (const key of Object.keys(relatedIntent)) if (key.includes('months')) { answers[key] = null; invalidated.push(key) }
   }
@@ -40,5 +41,5 @@ export function changeCorePlan(request: CoreRequest, patch: Record<string, unkno
     for (const key of Object.keys(answers)) if (/^(bank_balance\.|product_balance\.|held_count\.|combined_monthly\.)/.test(key)) { delete answers[key]; invalidated.push(key) }
   }
   if (changedDate) for (const key of Object.keys(answers)) if (key.endsWith('_qualifying_months')) { answers[key] = null; invalidated.push(key) }
-  return { request: { ...request, profile: { ...request.profile, ...patch }, answers }, invalidated }
+  return { request: { ...request, profile: { ...request.profile, ...patch, benefit_action: '' }, answers }, invalidated }
 }

@@ -1,0 +1,12 @@
+{
+  "base": "http://127.0.0.1:4173/finset/",
+  "formMs": 434,
+  "warmMs": 6890,
+  "fixtureResponses": 280,
+  "arbitraryInputs": 14,
+  "offlineCalculation": true,
+  "sameOriginGetOnly": true,
+  "averageCalculationMs": 291,
+  "maxCalculationMs": 3686,
+  "errors": []
+}
