@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
-    "build:pages": "tsc -b && vite build --mode pages && node scripts/strip-pages-rules.mjs",
+    "build:pages": "node scripts/check-browser-core.mjs && tsc -b && vite build --mode pages && node scripts/strip-pages-rules.mjs && node scripts/copy-python-runtime.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "preview:pages": "vite preview --host 127.0.0.1 --mode pages",
     "test:model": "node --experimental-strip-types --test tests/model.test.mjs",
@@ -15,12 +15,15 @@
     "test:ui": "node scripts/audit-mockup.cjs",
     "test:catalogue": "node --experimental-strip-types --test tests/catalogue.test.mjs",
     "test:core-state": "node --experimental-strip-types --test tests/core-state.test.mjs tests/basic-plan.test.mjs",
-    "test:v16": "node scripts/audit-v16.cjs"
+    "test:v16": "node scripts/audit-v16.cjs",
+    "test:browser": "node scripts/audit-browser-core.cjs",
+    "test:browser-core": "node --test tests/browser-core.test.mjs"
   },
   "dependencies": {
     "@fontsource-variable/noto-sans-kr": "^5.2.0",
     "decimal.js": "^10.6.0",
     "lucide-react": "^0.468.0",
+    "pyodide": "314.0.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

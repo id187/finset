@@ -1,0 +1,50 @@
+{
+  "version": "2026-09-13-consistency-1",
+  "pyodide": "314.0.7",
+  "source": {
+    "source_sha256": "15597888b0965ef565783957abea501d38130c0585ba3c86cd6355d86b954ef7",
+    "snapshot_sha256": "df3547946b13ba85e77bf54e5a74a7bcd164d5068d03bcc79817b87854f3ff84",
+    "source_verification": "Full original DB SHA256 verified at package build; browser verifies the derived snapshot.",
+    "products": 12542,
+    "columns": [
+      "id",
+      "source",
+      "product_type",
+      "institution",
+      "name",
+      "detail_status"
+    ]
+  },
+  "package_sha256": "900546b4d65c8e334f0dbb6c508bc8f3531bac8ed50b1a59b6068cf6587857bb",
+  "metadata_sha256": "372c7d58f77457fb3f00decced30e4bd09d02cf4ff2ca7b2292f9e80f6fb1876",
+  "files": {
+    "browser_data/inventory.sqlite3": "df3547946b13ba85e77bf54e5a74a7bcd164d5068d03bcc79817b87854f3ff84",
+    "browser_data/source.json": "9636fbaa0b29c28db490c4c821d02fc46191ab198a5e503f5eb5b029f696d08c",
+    "browser_entry.py": "0d8b35d37462cf4daf6ecf0f5ff534fac5246e3f5d68596841f002c0850ae696",
+    "browser_source.py": "29ac712aa192101e78caedc1bbcedd1f72962624dc417ec2eea798dd59e70174",
+    "core_runtime.py": "84a42613b48b58665bc5e324db80cca8cf4a53a9a364e90787ada261819946c8",
+    "core_vendor/finset_recommendation/README.md": "a33c6634c2d979e1cd842c8a24d72f7ffe12e687634ffa7ddb08e95e6a25445c",
+    "core_vendor/finset_recommendation/bonus_intent.py": "d332245574bf13e9004b9995c71f6079630fcf3a6eab9875493f542036518e3a",
+    "core_vendor/finset_recommendation/calculator.py": "fcb08c16c3b971ef5ad4c1ae1d7b6467a71a7cc693ae0ecf42f626a89dc23a91",
+    "core_vendor/finset_recommendation/conditions.py": "63f2681a350a056a0d8ab1239ee9e4f529a01fff3b24daf7101837cdc06032b7",
+    "core_vendor/finset_recommendation/consistency_review_20260913/test_consistency.py": "552df394643c25d7d9994a2a06fe3b2777c33305f6ae791fd251d228e5d732f8",
+    "core_vendor/finset_recommendation/engine.py": "3e6745cf665c2cecac5a3daa43e6500892eabe6d9e4f8c2cc9297aff3421c57d",
+    "core_vendor/finset_recommendation/explanations.py": "9fb4907f1ec677bd96c092b8f58c93de0b213545923bd9f40fa6009628ebcf39",
+    "core_vendor/finset_recommendation/liquid.py": "2c33a3734ac6ba9ca37a3ef2f16540425e096f1c3a805083bdd02569b414c639",
+    "core_vendor/finset_recommendation/liquid_rules.json": "9bfbab842659c39ba36d7de1a6bf785bcfb4bc9e197df17d323e9939918673fc",
+    "core_vendor/finset_recommendation/questions.py": "19f447111d73718edd77e264bb823e5824f645b705a52c83c775396fc7a9c70d",
+    "core_vendor/finset_recommendation/recovery.py": "2654ce54ce387fcba2742023e0e28aa3639b2e223088de70924e893d10542d53",
+    "core_vendor/finset_recommendation/rules.json": "2381a11449b41c325d2996214bf4720fa70be5e264933863fd07f43a6c7181d3",
+    "core_vendor/finset_recommendation/source.py": "fb6cba6f0613254356377966f0c0688c9534ef377aa2e653212c4a415eec92cb",
+    "core_vendor/finset_recommendation/source_lock.json": "fed6444a4a1f7003ba6b1b83dcf961ffd4a12bde7cfb6a7a8cd72f103ac3df73",
+    "core_vendor/fixtures/cases.json": "2a8573cd96f2fa678440e8962d322b6357e0817c8ea34d6554fcf65e922d9b83",
+    "core_vendor/manifest.json": "6e5866d4455b5b8f92b0161e812e4953c15b7c92b5a3b21bd5e401c89e5c6d6e",
+    "core_vendor/verify.py": "e05ba11d7e5579229eaef9cac7f00a4757f452d28111a2bf7c6083d7d615db5f",
+    "public/demo/inventory.json": "0ca87c80a6e22d003fe86a0f6cd79863361e1d094eed810ca436bfe4767213dc"
+  },
+  "sizes": {
+    "original_db": 131260416,
+    "snapshot_db": 1703936,
+    "package": 2810556
+  }
+}

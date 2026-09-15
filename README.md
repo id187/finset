@@ -9,10 +9,10 @@
 | 실행 환경 | 제공 범위 |
 |---|---|
 | 로컬 Python API + 웹 | 직접 입력한 금액·날짜와 실제 답변을 Python 코어로 계산 |
-| 공개 GitHub Pages | 새 기본 5단계 입력 및 서버 미연결 안내. 별도 [계산 사례](https://id187.github.io/finset/?screen=guided&examples=1)에서 14개 사례와 답변 조합 280개의 Python 응답 재생 |
-| 향후 추천 API 연결 | `VITE_FINSET_API_URL` 지정 후 Pages에서도 자유 입력 계산 가능. 현재 배포한 서버는 없음 |
+| 공개 GitHub Pages | 서버 없이 직접 입력한 금액·날짜·답변을 기존 Python 코어로 계산. 예시 14개도 같은 브라우저 코어로 재계산 |
+| 선택적 추천 API 연결 | `VITE_FINSET_API_URL`을 지정하면 기존 HTTP 전송 방식 사용. 현재 시연에는 서버 불필요 |
 
-공개 화면에서 임의 금액을 바꿔 계산한 것처럼 표시하지 않습니다. 전체 `rules.json`을 브라우저 계산기로 이식하지 않으며 원본 DB를 배포하지 않습니다. 기존 회복·납입·저장 경로와 시연 자료는 유지합니다.
+GitHub Pages는 Pyodide 314.0.7과 Web Worker에서 Python 코어를 직접 실행합니다. 질문·금리·순위·계산 규칙은 변경하지 않습니다. 원본 DB는 보존하고, 검증한 별도 읽기 전용 자료와 원본 규칙을 압축 배포합니다. 추천 입력은 메모리에서만 처리하며 서버로 전송하지 않습니다. [구조와 검증 기록](BROWSER_RUNTIME.md)을 확인하세요.
 
 ## 질문과 결과
 
@@ -42,11 +42,15 @@
 
 `15597888b0965ef565783957abea501d38130c0585ba3c86cd6355d86b954ef7`
 
-## 로컬 실행
+## 서버 없이 로컬 확인
+
+원본 DB가 없는 새 clone에서도 `npm ci`, `npm run build:pages`, `npm run preview:pages`로 실행합니다. 안내되는 `/finset/` 주소를 엽니다.
+
+## 로컬 API 개발
 
 Node 22 이상과 Python 3.11 이상을 사용합니다. 원본 패키지 기본 경로는 `../mvp/핀셋_MVP_팀원전달`입니다. 다른 위치는 `FINSET_DATA_DIR`로 지정합니다.
 
-전달 패키지의 코어 규칙·fixture는 원본을 보존하기 위해 Git에 포함하지 않습니다. 새로 clone했다면 최신코어 경로로 한 번 준비합니다. 이미 있는 파일의 해시가 다르면 덮어쓰지 않습니다.
+API를 개발하려면 전달 패키지의 원본 DB·규칙을 로컬에 준비합니다. 원본 규칙의 개별 파일은 Git에서 제외되어 있으며, Pages에는 검증한 브라우저 패키지가 포함됩니다. 이미 있는 파일의 해시가 다르면 덮어쓰지 않습니다.
 
 ```powershell
 npm ci
@@ -65,7 +69,7 @@ python -X utf8 core_vendor/verify.py --db '../mvp/핀셋_MVP_팀원전달/servic
 python -X utf8 tests/test_core_transport.py
 npm run test:model
 npm run test:pages
-python -X utf8 scripts/export-mvp2.py
+python -X utf8 scripts/export-browser-core.py
 npm run build:pages
 npm run preview:pages -- --port 4175
 ```
@@ -73,9 +77,9 @@ npm run preview:pages -- --port 4175
 - 전달 사례 14개는 카드뿐 아니라 **전체 Python 응답**을 기대값과 비교합니다.
 - 납입 방식 `compare`, 우대 거절·미확인, 목표 부족, 후보 없음의 상태를 검사합니다.
 - 기존 계산·조건·회복 회귀와 새 답변 의존성·정적 응답 검증을 유지합니다. 이전 JS 계산 테스트는 새 Python 코어의 계산 검증과 구분합니다.
-- `node scripts/audit-v16.cjs`는 최신 기본 입력과 실제 코어 추천을 검사합니다. `FINSET_URL`과 `FINSET_REPLAY=1`을 지정하면 공개 입력 안내를 검사합니다. 이전 사례 회귀는 같은 환경변수로 `scripts/audit-mvvp.cjs`를 실행합니다. Playwright 위치는 `PLAYWRIGHT_MODULE`로 지정합니다.
+- `node scripts/audit-v16.cjs`는 최신 기본 입력과 실제 코어 추천을 검사합니다. Pages는 `FINSET_URL`과 `FINSET_BROWSER=1`을 지정합니다. `scripts/browser-baselines.py` 실행 후 `scripts/audit-browser-core.cjs`는 기존 280개 응답과 자유 입력·오류 처리 13개를 브라우저 결과와 대조하고 API 요청이 없음을 검사합니다. Playwright 위치는 `PLAYWRIGHT_MODULE`로 지정합니다.
 - `python -X utf8 tests/test_available_budget.py`로 가용 금액과 기존 코어 응답의 일치, 이중 차감 방지, 기간·변동 수입을 검증합니다.
-- `scripts/strip-pages-rules.mjs`는 생성된 배포 폴더에서 이전 전체 추천 규칙 파일을 제외합니다. 원본과 회귀 자료는 삭제하지 않습니다.
+- `scripts/check-browser-core.mjs`가 버전·출처·패키지 해시를 확인합니다. `scripts/strip-pages-rules.mjs`는 배포 폴더에서 과거 중복 자료·정적 응답을 제외하고, `scripts/copy-python-runtime.mjs`가 같은 사이트에서 제공할 Python 실행 파일을 복사합니다. 원본과 회귀 자료는 삭제하지 않습니다.
 - main push 시 GitHub Actions가 테스트·빌드 후 Pages에 배포합니다.
 
 ## 주요 파일
@@ -84,9 +88,11 @@ npm run preview:pages -- --port 4175
 - `core_runtime.py`: 새 코어 호출·입력 검증·질문 표시 어댑터
 - `server.py`: 기존 API 유지, `/api/v2` 추가
 - `src/CoreFlow.tsx`, `coreState.ts`, `coreApi.ts`, `core.css`: 질문·답변 수정·실제 코어 결과 표시
-- `public/demo/mvp2.json`: 동일 버전 코어의 280개 정적 응답. 파일명은 기존 연결을 유지
+- `public/browser-core/`: 검증한 실행 패키지, 작은 메타데이터, 출처·체크섬 기록
+- `browser_source.py`, `browser_entry.py`, `src/core.worker.ts`, `src/browserCore.ts`: 읽기 전용 브라우저 자료 연결과 비동기 호출
+- `public/demo/mvp2.json`: 기존 280개 응답의 회귀 테스트 기대값. 배포에서는 제외
 - `src/Inventory.tsx`, `public/demo/inventory.json`: 전체 상품·원문·이전 검수 기록
 - `catalogue_db.py`, `condition_db.py`, 이전 `src/interview.ts`: 기존 검수·회귀 자료
 - `MVVP_APPLIED.md`: 적용 목록, 확인 결과, 남은 범위
 
-실제 계좌 조회·가입·이체·최신 공시 갱신과 공개 추천 서버 운영은 별도 단계입니다.
+실제 계좌 조회·가입·이체·최신 공시 갱신은 별도 단계입니다. 현재 질문형 추천 시연에는 추천 서버가 필요하지 않습니다.

@@ -1,0 +1,5 @@
+Fin-Set includes the unmodified Pyodide 314.0.7 runtime, distributed under MPL-2.0.
+Source and license: https://github.com/pyodide/pyodide
+License text: https://www.mozilla.org/en-US/MPL/2.0/
+Pyodide project: https://pyodide.org/
+Python and bundled third-party components retain their respective licenses.
